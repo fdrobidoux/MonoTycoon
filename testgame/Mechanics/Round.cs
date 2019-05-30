@@ -1,21 +1,15 @@
 using System;
 using System.Diagnostics.SymbolStore;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using testgame.Core;
 
 namespace testgame.Mechanics
 {
-    public interface IRound
-    {
-        RoundState State { get; set; }
-        ushort Number { get; }
-        Team ServingTeam { get; }
-        event EventHandler<ValueChangedEvent<RoundState>> RoundStateChanges;
-    }
-
-    public class Round : IRound, IDisposable
+    public class Round : GameComponent, IRound
     {
         private RoundState _state;
-
         public RoundState State
         {
             get => _state;
@@ -27,80 +21,80 @@ namespace testgame.Mechanics
                 RoundStateChanges?.Invoke(this, new ValueChangedEvent<RoundState>(old, value));
             }
         }
-
         public ushort Number { get; set; }
-
         public Team ServingTeam { get; set; }
-
         public event EventHandler<ValueChangedEvent<RoundState>> RoundStateChanges;
+        
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="game">Game instance</param>
+        /// <param name="state">Starting state</param>
+        /// <param name="number">Number of round we're at.</param>
+        /// <param name="servingTeam">Who serves.</param>
+        public Round(Game game, RoundState state, ushort number, Team servingTeam) : base(game)
+        {
+            State = state;
+            Number = number;
+            ServingTeam = servingTeam;
+        }
 
-        public void Dispose()
+        public new void Dispose()
         {
             RoundStateChanges = null;
         }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+        }
     }
 
-    public enum RoundState
+    public interface IRound : IDisposable
     {
-        /// <summary>
-        /// Most likely doing an intro.
-        /// </summary>
+        RoundState State { get; set; }
+        ushort Number { get; }
+        Team ServingTeam { get; }
+        event EventHandler<ValueChangedEvent<RoundState>> RoundStateChanges;
+        void Dispose();
+    }
+
+    public enum RoundState : byte
+    {
+        /// <summary>Most likely doing an intro.</summary>
         NotStarted,
-        /// <summary>
-        /// Ball needs to be served by whichever player shall get the ball.
-        /// </summary>
+        /// <summary>Ball needs to be served by whichever player shall get the ball.</summary>
         WaitingForBallServe,
-        /// <summary>
-        /// Ping-Pong happening.
-        /// </summary>
+        /// <summary>Ping-Pong happening.</summary>
         InProgress,
-        /// <summary>
-        /// Winner was found. Will soon change round.
-        /// </summary>
+        /// <summary>Winner was found. Will soon change round.</summary>
         Completed,
     }
 
     public static class RoundStateExtensions
     {
         /// <summary>
-        /// Returns true if any state given equals the instance MatchState.
+        /// Returns true if any of the states given equal the instance RoundState.
         /// </summary>
-        /// <param name="thisRoundState"></param>
-        /// <param name="statesToMatch"></param>
-        /// <returns></returns>
-        public static bool Any(this RoundState thisRoundState, params RoundState[] statesToMatch)
+        public static bool Any(this RoundState thisRoundState, params RoundState[] statesToMatch) 
+            => statesToMatch.Any(state => thisRoundState == state);
+
+        /// <summary>
+        /// Returns true if none of the states given are different from the instance RoundState.
+        /// </summary>
+        public static bool None(this RoundState thisRoundState, params RoundState[] statesToAvoid) 
+            => statesToAvoid.All(state => thisRoundState != state);
+
+        public static Color DebugColor(this RoundState thisRound)
         {
-            foreach (RoundState state in statesToMatch)
+            switch (thisRound)
             {
-                if (thisRoundState == state)
-                    return true;
+                case RoundState.Completed:  return Color.GreenYellow;
+                case RoundState.InProgress: return Color.GhostWhite;
+                case RoundState.NotStarted: return Color.IndianRed;
+                case RoundState.WaitingForBallServe: return Color.LightGoldenrodYellow;
+                default: return Color.DarkGray;
             }
-
-            return false;
         }
-
-        public static bool None(this RoundState thisRoundState, params RoundState[] statesToAvoid)
-        {
-            foreach (RoundState state in statesToAvoid)
-            {
-                if (thisRoundState == state)
-                    return false;
-            }
-
-            return true;
-        }
-        
-        /*
-        public static bool All(this RoundState thisRoundState, params RoundState[] statesThatAllNeedToMatch)
-        {
-            foreach (RoundState state in statesThatAllNeedToMatch)
-            {
-                if (thisRoundState != state)
-                    return false;
-            }
-
-            return true;
-        }
-        */
     }
 }

@@ -1,32 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoTycoon.Core.Screens;
 using testgame.Core;
-using testgame.Entities;
 using testgame.Mechanics;
+using testgame.Screens;
 
 namespace testgame
 {
     public class Game1 : Game
     {
         GraphicsDeviceManager graphics;
-        public SpriteBatch SpriteBatch;
-
-        // Game Components
-        private Paddle PlayerPaddle { get; }
-        private Paddle AiPaddle { get; }
-        private Ball Ball { get; }
-
-        public float TotalSecondsCountdown;
+        public static SpriteBatch SpriteBatch { get; private set; }
         
+        public float TotalSecondsCountdown;
+
         // Services
         private Match Match { get; }
-        private Round Round => Match.CurrentRound;
-        public IRound ImmutRound => ((IMatch) Match).CurrentRound;
+        private ScreenManager ScreenManager { get; }
+
+        // Screens
+        private OngoingMatchScreen ongoingMatchScreen;
+        private StartGameScreen startGameScreen;
+        private DetermineFirstServerScreen determineFirstServerScreen;
 
         public Game1() : base()
         {
@@ -39,16 +36,18 @@ namespace testgame
             IsMouseVisible = true;
 
             // Pong Game Components
-            PlayerPaddle = new Paddle(this, Team.Blue);
-            AiPaddle = new Paddle(this, Team.Red);
-            Ball = new Ball(this) { Enabled = false };
-            Components.Add(PlayerPaddle);
-            Components.Add(AiPaddle);
-            Components.Add(Ball);
-            
+
             // Match Service
-            Services.AddService<IMatch>(Match = new Match(this));
+            Match = new Match(this, MatchState.NotStarted);
+            Services.AddService<IMatch>(Match);
             Components.Add(Match);
+
+            // ScreenManager Service
+            this.ongoingMatchScreen = new OngoingMatchScreen(this);
+            this.ScreenManager = new ScreenManager(this, ongoingMatchScreen);
+
+            Services.AddService<IScreenManager>(ScreenManager);
+            Components.Add(ScreenManager);
         }
 
         protected override void Initialize()
@@ -56,43 +55,37 @@ namespace testgame
             base.Initialize();
             // TODO: Remove those parts when Menu is done.
             Match.State = MatchState.NotStarted;
+            startGameScreen = new StartGameScreen(this);
+            ScreenManager.Push(startGameScreen);
         }
 
         protected override void LoadContent()
         {
             // Sprite batch.
-            SpriteBatch = new SpriteBatch(graphics.GraphicsDevice);
+            Services.AddService(SpriteBatch = new SpriteBatch(graphics.GraphicsDevice));
             // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
             KeyboardState kb = Keyboard.GetState();
-            
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
+
+            // Exit if player presses Esc.
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || kb.IsKeyDown(Keys.Escape))
                 Exit();
             
-            foreach (var updateable in Components.OfType<IUpdateable>())
-            {
-                updateable.Update(gameTime);
-            }
-            
-            // base.Update(gameTime);
+            base.Update(gameTime);
         }
         
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
             
             SpriteBatch.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.AnisotropicWrap);
             
-            foreach (var actuallyDrawable in Components.OfType<IActuallyDrawable>())
-                actuallyDrawable.Draw(gameTime, SpriteBatch);
-            
-            SpriteBatch.End();
-            
             base.Draw(gameTime);
+
+            SpriteBatch.End();
         }
     }
 }

@@ -1,19 +1,26 @@
 using System;
+using System.Collections;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoTycoon.Core.Extensions;
 using testgame.Core;
 using testgame.Mechanics;
 
 namespace testgame.Entities
 {
-    public class Paddle : DrawableGameComponent, IActuallyDrawable
+    public class Paddle : DrawableGameComponent
     {
         public Vector2 Position = Vector2.Zero;
         public Vector2 Size = new Vector2(50, 100);
+        public Rectangle Bounds => new Rectangle(Position.ToPoint(), Size.ToPoint());
         public Texture2D Sprite;
         public Team Team;
+
+        // State booleans.
+        private bool _moving = false;
 
         public Paddle(Game game, Team team) : base(game)
         {
@@ -25,7 +32,10 @@ namespace testgame.Entities
             IMatch match = Game.Services.GetService<IMatch>();
             match.TeamScores += OnTeamScores;
             match.MatchStateChanges += OnMatchStateChanges;
-            
+            IRound round = match.CurrentRound;
+            if (round != null)
+                round.RoundStateChanges += OnRoundStateChanges;
+
             float x;
             switch (Team)
             {
@@ -38,9 +48,9 @@ namespace testgame.Entities
                 default:
                     throw new ArgumentOutOfRangeException(nameof(Team), Team, null);
             }
-            
+
             Position = new Vector2(x, (GraphicsDevice.Viewport.Height / 2f) - (Size.Y / 2f));
-            
+
             base.Initialize(); // Will call `LoadContent()`;
         }
 
@@ -48,7 +58,6 @@ namespace testgame.Entities
         {
             if (sender is IMatch match)
             {
-                
             }
         }
 
@@ -56,25 +65,15 @@ namespace testgame.Entities
         {
             if (sender is IMatch match)
             {
-                if (e.HasChangedFrom(MatchState.DemoMode, MatchState.NotStarted))
-                {
-                    // TODO: When changed to not started.
-                }
-                else if (e.HasChangedFrom(MatchState.NotStarted, MatchState.InstanciatedRound))
+                _moving = (e.Modified == MatchState.NotStarted);
+
+                if (e.Modified == MatchState.InstanciatedRound)
                 {
                     match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
                 }
-                else if (e.HasChangedFrom(MatchState.InstanciatedRound, MatchState.InProgress))
+                else if (e.Modified == MatchState.Finished)
                 {
-                    
-                }
-                else if (e.HasChangedFrom(MatchState.InProgress, MatchState.Finished))
-                {
-                    
-                }
-                else if (e.HasChangedFrom(MatchState.Finished, MatchState.DemoMode))
-                {
-                    
+                    match.CurrentRound.RoundStateChanges -= OnRoundStateChanges;
                 }
             }
         }
@@ -83,41 +82,59 @@ namespace testgame.Entities
         {
             if (sender is IRound round)
             {
-                if (e.HasChangedFrom(RoundState.NotStarted, RoundState.InProgress))
+                if (e.Modified == RoundState.NotStarted)
                 {
-                    
+                    Enabled = false;
                 }
                 else if (e.Modified == RoundState.InProgress)
+                {
+                    Enabled = true;
+                }
             }
         }
 
         protected override void LoadContent()
         {
-            Sprite = Game.Content.Load<Texture2D>("ship");
+            //Sprite = Game.Content.Load<Texture2D>("ship");
+            var strm = new FileStream("C:\\Users\\FelixDev\\source\\projects\\MonoTycoon\\testgame\\Content\\ship.png", FileMode.Open, FileAccess.Read);
+            Sprite = Texture2D.FromStream(Game.GraphicsDevice, strm);
+            strm.Dispose();
         }
+
         protected override void UnloadContent()
         {
             Sprite.Dispose();
             Sprite = null;
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public new void Draw(GameTime gameTime)
         {
-            spriteBatch.Draw(Sprite, new Rectangle(Position.ToPoint(), Size.ToPoint()), null, Color.White);
+            Game.GetSpriteBatch().Draw(Sprite, new Rectangle(Position.ToPoint(), Size.ToPoint()), null, Color.White);
         }
 
         public override void Update(GameTime gameTime)
         {
-            switch (this.Team)
+            IMatch match = Game.Services.GetService<IMatch>();
+
+            if (match.State == MatchState.DemoMode)
+                MoveAI(gameTime);
+            else
             {
-                case Team.Blue:
-                    MoveWithMouse(gameTime);
-                    break;
-                case Team.Red:
-                    MoveAI(gameTime);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                if (match.State.Any(MatchState.InProgress) && match.CurrentRound.State.Any(RoundState.WaitingForBallServe, RoundState.InProgress))
+                {
+                    if (Team == Team.Blue)
+                    {
+                        MoveWithMouse(gameTime);
+                    }
+                    else if (Team == Team.Red)
+                    {
+                        MoveAI(gameTime);
+                    }
+                    else
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
             }
 
             ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
@@ -130,7 +147,10 @@ namespace testgame.Entities
 
         private void MoveAI(GameTime gameTime)
         {
-            
+            Ball ball = Game.Components.OfType<Ball>().FirstOrDefault()
+                        ?? throw new Exception("E420 - BALL DIDN'T EXIST LOL");
+
+            Position.Y = ball.Position.Y;
         }
 
         public void ConstrainWithinBounds(Rectangle viewBounds)

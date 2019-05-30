@@ -21,9 +21,7 @@ namespace testgame.Core
             };
         }
 
-        public bool HasChangedFrom(T old, T modified)
-        {
-            return _hasChangedDict[new KeyValuePair<T, T>(old, modified)];
-        }
+        public bool HasChangedFrom(T old, T modified) 
+            => _hasChangedDict[new KeyValuePair<T, T>(old, modified)];
     }
 }

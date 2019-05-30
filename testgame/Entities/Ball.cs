@@ -9,25 +9,22 @@ namespace testgame.Entities
 {
     public class Ball : DrawableGameComponent, IActuallyDrawable
     {
-//        private IMatch _match;
-        
+        private Vector2 _velocity = Vector2.Zero;
         private readonly float _baseScale = 0.07f;
         private float _scale;
-        private Vector2 _velocity = Vector2.Zero;
-        
+
         public Vector2 Position = Vector2.Zero;
+        public Rectangle Bounds => new Rectangle(Position.ToPoint(), Sprite.Bounds.Center.Scale(Scale));
 
         public float Scale
         {
             get => _scale;
             set => _scale = value * _baseScale;
         }
+
         public Texture2D Sprite;
 
-        /// <summary>
-        /// Constructor for object `Ball`.
-        /// </summary>
-        /// <param name="game"></param>
+
         public Ball(Game game) : base(game)
         {
             Scale = 1f;
@@ -38,14 +35,11 @@ namespace testgame.Entities
             Visible = false;
 
             IMatch _match = Game.Services.GetService<IMatch>();
+            IRound round = _match.CurrentRound;
+            
             _match.MatchStateChanges += OnMatchStateChanges;
-//            _match.MatchStateChanges += OnMatchStateChanges;
-
-            IRound round;
-            if ((round = _match.CurrentRound) != null)
-            {
-//                round.RoundStateChanges += OnRoundStateChanges;
-            }
+            if (round != null)
+                SetRoundEvents(round);
 
             _velocity = Vector2.Zero;
 
@@ -56,7 +50,11 @@ namespace testgame.Entities
         {
             if (sender is IMatch match)
             {
-                if (e.HasChangedFrom(MatchState.NotStarted, MatchState.InstanciatedRound))
+                if (e.Modified == MatchState.NotStarted)
+                {
+                    
+                }
+                else if (e.HasChangedFrom(MatchState.NotStarted, MatchState.InstanciatedRound))
                 {
                     SetRoundEvents(match.CurrentRound);
                 }
@@ -67,41 +65,31 @@ namespace testgame.Entities
                 else if (e.HasChangedFrom(MatchState.InProgress, MatchState.Finished))
                 {
                     // In Progress -> Finished
+                    UnsetRoundEvents(match.CurrentRound);
                 }
-                else if (e.HasChangedFrom(MatchState.Finished, MatchState.DemoMode))
+                else if (e.Modified == MatchState.DemoMode)
                 {
                     // Finished -> DemoMode
                 }
             }
         }
 
-        private void SetRoundEvents(IRound round)
-        {
-            
-        }
+        private void SetRoundEvents(IRound round) => round.RoundStateChanges += OnRoundStateChanges;
+        private void UnsetRoundEvents(IRound round) => round.RoundStateChanges -= OnRoundStateChanges;
 
         private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
             if (sender is IRound round)
             {
-                switch (e.Modified)
-                {
-                    case RoundState.NotStarted:
-                    case RoundState.WaitingForBallServe:
-                        break;
-                    case RoundState.InProgress:
-                        break;
-                    case RoundState.Completed:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(e), e, null);
-                }
+                Visible = e.Modified != RoundState.NotStarted;
+                Enabled = e.Modified.Any(RoundState.InProgress);
             }
         }
 
         public void Reset()
         {
-            Position = (GraphicsDevice.Viewport.Bounds.Center.ToVector2() / 2f) - ((Sprite.Bounds.Size.ToVector2() / 2f) * Scale);
+            Position = (GraphicsDevice.Viewport.Bounds.Center.ToVector2() / 2f) -
+                       ((Sprite.Bounds.Size.ToVector2() / 2f) * Scale);
         }
 
         protected override void LoadContent()
@@ -111,33 +99,23 @@ namespace testgame.Entities
 
         protected override void UnloadContent()
         {
-            Sprite.Dispose();
+            Sprite?.Dispose();
             Sprite = null;
         }
 
         public override void Update(GameTime gameTime)
         {
-            var match = Game.Services.GetService<IMatch>();
+            IMatch match = Game.Services.GetService<IMatch>();
+        }
 
-            if (match.State == MatchState.InProgress)
-            {
-                Position += _velocity * gameTime.Delta();
-            }
-            else if (match.State == MatchState.InstanciatedRound)
-            {
-                Reset();
-            }
-            Console.WriteLine(Position);
+        public override void Draw(GameTime gameTime)
+        {
+            Draw(gameTime, Game.Services.GetService<SpriteBatch>());
         }
 
         public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(Sprite, Position, null, Color.White, 0f, Vector2.Zero, Scale, SpriteEffects.None, 0f);
         }
-    }
-
-    public struct BallState
-    {
-        
     }
 }

@@ -1,30 +1,25 @@
 using System;
+using System.Linq;
+using System.Numerics;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using testgame.Core;
 
 namespace testgame.Mechanics
 {
-    public interface IMatch
-    {
-        MatchState State { get; set; }
-        int ScoreBlue { get; }
-        int ScoreRed { get; }
-        IRound CurrentRound { get; }
-        event EventHandler<Team> TeamScores;
-        event EventHandler<ValueChangedEvent<MatchState>> MatchStateChanges;
-    }
-    
-    public class Match : DrawableGameComponent, IMatch, IActuallyDrawable
+    public class Match : GameComponent, IMatch
     {
         private int _scoreBlue;
         private int _scoreRed;
         private MatchState _state;
         private Round _currentRound = null;
-        
-        public Match(Game game) : base(game)
+
+        public Match(Game game, MatchState? startingState = null) : base(game)
         {
-            _state = MatchState.DemoMode;
+            _state = startingState ?? MatchState.DemoMode;
         }
 
         public MatchState State
@@ -38,20 +33,19 @@ namespace testgame.Mechanics
                 MatchStateChanges?.Invoke(this, new ValueChangedEvent<MatchState>(old, _state));
             }
         }
-
         public int ScoreBlue
         {
             get => _scoreBlue;
             private set
             {
-                if (value == _scoreBlue) return;
+                if (value == _scoreBlue)
+                    return;
                 bool wasReduced = value < _scoreBlue;
                 _scoreBlue = value;
                 if (wasReduced) return;
                 TeamScores?.Invoke(this, Team.Blue);
             }
         }
-
         public int ScoreRed
         {
             get => _scoreRed;
@@ -65,42 +59,35 @@ namespace testgame.Mechanics
             }
         }
 
+        public Round CurrentRound { get => _currentRound; set => _currentRound = value; }
         IRound IMatch.CurrentRound => _currentRound;
-        
-        public Round CurrentRound
-        {
-            get => _currentRound;
-            set => _currentRound = value;
-        }
 
         public event EventHandler<Team> TeamScores;
         public event EventHandler<ValueChangedEvent<MatchState>> MatchStateChanges;
 
-        public void Initialize()
+        public override void Initialize()
         {
+            MatchStateChanges = null;
             MatchStateChanges += OnMatchStateChanges;
-            CurrentRound = null;
             _scoreBlue = 0;
             _scoreRed = 0;
+            base.Initialize();
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public override void Update(GameTime gameTime)
         {
-            throw new NotImplementedException();
+            CurrentRound?.Update(gameTime);
         }
+
+        #region "Unique To `Match`"
 
         public void AddOnePointTo(Team team)
         {
             switch (team)
             {
-                case Team.Blue:
-                    ScoreBlue++;
-                    break;
-                case Team.Red:
-                    ScoreRed++;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(team), team, null);
+                case Team.Blue: ScoreBlue++; return;
+                case Team.Red: ScoreRed++; return;
+                default: throw new ArgumentOutOfRangeException(nameof(team), team, null);
             }
         }
 
@@ -108,7 +95,7 @@ namespace testgame.Mechanics
         {
             if (_currentRound == null)
             {
-                CurrentRound = new Round {State = RoundState.NotStarted, ServingTeam = Team.Blue};
+                CurrentRound = new Round(Game, RoundState.NotStarted, 1, Team.Blue);
                 State = MatchState.InstanciatedRound;
             }
             else
@@ -123,24 +110,41 @@ namespace testgame.Mechanics
 
         private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
-            if (sender is Match match)
-            {
-                if (e.Modified == MatchState.InstanciatedRound)
-                {
-                    State = MatchState.InProgress;
-                }
-            }
+            /*
+            if (!(sender is Match match)) 
+                return;
+            
+            if (e.Modified == MatchState.InstanciatedRound)
+                // TODO: Change it so that InProgress is set only after a timer.
+                State = MatchState.InProgress;
+            */
         }
+
+        #endregion
     }
-    
-    public enum MatchState
+
+    public interface IMatch : IGameComponent
+    {
+        MatchState State { get; set; }
+        int ScoreBlue { get; }
+        int ScoreRed { get; }
+        IRound CurrentRound { get; }
+        
+        event EventHandler<Team> TeamScores;
+        event EventHandler<ValueChangedEvent<MatchState>> MatchStateChanges;
+
+        void AddOnePointTo(Team team);
+        Round StartNewRound();
+    }
+
+    public enum MatchState : byte
     {
         /// <summary>
         /// Nothing is being done right now.
         /// </summary>
         NotStarted,
         /// <summary>
-        /// `_currentRound` now has an instance of a `Round` object.
+        /// When `_currentRound` now has an instance of a `Round` object.
         /// </summary>
         InstanciatedRound,
         /// <summary>
@@ -160,20 +164,18 @@ namespace testgame.Mechanics
     public static class MatchStateExtensions
     {
         /// <summary>
-        /// Returns true if any state given equals the instance MatchState.
+        /// Returns true if any of the states given equal the instance MatchState.
         /// </summary>
-        /// <param name="thisMatchState"></param>
-        /// <param name="statesToMatch"></param>
-        /// <returns></returns>
-        public static bool Any(this MatchState thisMatchState, params MatchState[] statesToMatch)
-        {
-            foreach (MatchState state in statesToMatch)
-            {
-                if (thisMatchState == state)
-                    return true;
-            }
+        public static bool Any(this MatchState thisMatchState, params MatchState[] statesToMatch) 
+            => statesToMatch.Any(state => thisMatchState == state);
 
-            return false;
-        }
+        /// <summary>
+        /// Returns true if none of the states given are different from the instance MatchState.
+        /// </summary>
+        public static bool None(this MatchState thisMatchState, params MatchState[] statesToAvoid) 
+            => statesToAvoid.All(state => thisMatchState != state);
+
+        //public static bool All(this MatchState thisMatchState, params MatchState[] statesThatAllNeedToMatch) 
+        //    => statesThatAllNeedToMatch.All(state => thisMatchState == state);
     }
 }

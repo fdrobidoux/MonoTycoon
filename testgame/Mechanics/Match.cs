@@ -60,7 +60,7 @@ namespace testgame.Mechanics
 
         public Match(Game game, MatchState? startingState) : base(game)
         {
-            _state = startingState ?? MatchState.DemoMode;
+            State = startingState ?? MatchState.DemoMode;
         }
 
         public override void Initialize()
@@ -69,12 +69,6 @@ namespace testgame.Mechanics
             MatchStateChanges += OnMatchStateChanges;
             _scoreBlue = 0;
             _scoreRed = 0;
-            StartNewRound();
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            CurrentRound?.Update(gameTime);
         }
 
         #region "Unique To `Match`"
@@ -99,17 +93,17 @@ namespace testgame.Mechanics
             }
         }
 
-        public Round StartNewRound()
+        public IRound StartNewRound()
         {
             if (CurrentRound == null || State == MatchState.Finished)
             {
                 CurrentRound = new Round(Game, RoundState.NotStarted, 1);
+                CurrentRound.Initialize();
                 State = MatchState.InstanciatedRound;
             }
             else
             {
                 CurrentRound.Number++;
-                CurrentRound.ServingTeam = Team.Blue; // TODO: Set serving team based on last round winner.
                 CurrentRound.State = RoundState.WaitingForBallServe;
             }
 
@@ -136,7 +130,7 @@ namespace testgame.Mechanics
 
         void AddOnePointTo(Team team);
         int GetScore(Team team);
-        Round StartNewRound();
+        IRound StartNewRound();
     }
 
     public enum MatchState : byte

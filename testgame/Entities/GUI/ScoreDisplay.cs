@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Text;
 using testgame.Mechanics;
 using MonoTycoon.Core.Graphics;
-using System.Diagnostics;
+using testgame.Core;
 
 namespace testgame.Entities.GUI
 {
@@ -15,17 +13,15 @@ namespace testgame.Entities.GUI
         private IMatch _match;
         private const String STR_FORMAT = "Team {0}: {1}";
 
-        private readonly MatchState[] STATES_WHEN_DISABLED = { MatchState.NotStarted, MatchState.DemoMode };
-
         public ScoreDisplay(Game game) : base(game)
         {
-            _match = game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += onMatchStateChanges;
         }
 
         public override void Initialize()
         {
             base.Initialize();
+            _match = Game.Services.GetService<IMatch>();
+            _match.MatchStateChanges += onMatchStateChanges;
         }
 
         protected override void LoadContent()
@@ -33,7 +29,9 @@ namespace testgame.Entities.GUI
             _font = Game.Content.Load<SpriteFont>("Arial");
         }
 
-        private void onMatchStateChanges(object sender, Core.ValueChangedEvent<MatchState> e)
+        private readonly MatchState[] STATES_WHEN_DISABLED = { MatchState.NotStarted, MatchState.DemoMode };
+
+        private void onMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
             Enabled = (!e.Modified.Any(STATES_WHEN_DISABLED));
         }

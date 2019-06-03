@@ -6,29 +6,27 @@ using MonoTycoon.Core.Graphics;
 using MonoTycoon.Core.Physics;
 using System;
 using System.Collections.Generic;
+using testgame.Core;
 using testgame.Entities;
 
 namespace testgame.Mechanics
 {
-    public class FirstServerFinderEntity : DrawableGameComponent
+    public class FirstServerFinder : DrawableGameComponent
     {
         private Ball TheBall;
-
         private Point BallPosition;
-
         private Team currentTeam;
-
         private bool isChoosing = true;
 
+        # region "Timers"
         public TimerTask timerSwitcharooDo;
         public float multiplicateur = 1.1F;
-
         public TimerTask timerEndSwitcharoo;
-
         public TimerTask timerEndScaling;
         private double ballScale;
+        #endregion
 
-        public FirstServerFinderEntity(Game game, Ball ball) : base(game)
+        public FirstServerFinder(Game game, Ball ball) : base(game)
         {
             TheBall = ball;
             timerSwitcharooDo = new TimerTask(alternateBallPosition, 33, true);
@@ -39,10 +37,13 @@ namespace testgame.Mechanics
         public override void Initialize()
         {
             base.Initialize();
-            
+
+            IMatch _match = Game.Services.GetService<IMatch>();
+            _match.MatchStateChanges += onMatchStateChanges;
+
             isChoosing = true;
             currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
-            
+
             timerSwitcharooDo.Reset();
             timerSwitcharooDo.Enabled = true;
             timerSwitcharooDo.Recurring = true;
@@ -50,11 +51,46 @@ namespace testgame.Mechanics
             timerEndSwitcharoo.Reset();
             timerEndSwitcharoo.Enabled = true;
             timerEndSwitcharoo.IntervalMs = TimeSpan.FromMilliseconds(new Random().Next(2000, 3001)).TotalMilliseconds;
-            
+
             timerEndScaling.Reset();
             timerEndScaling.Enabled = false;
 
             ballScale = 3F;
+
+            Enabled = false;
+            Visible = false;
+        }
+
+        /// <summary>
+        /// MATCH EVENTS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void onMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        {
+            if (!(sender is IMatch match))
+                return;
+
+            if (e.Modified == MatchState.InstanciatedRound)
+            {
+                match.CurrentRound.RoundStateChanges += onRoundStateChanges;
+                Enabled = true;
+                Visible = true;
+            }
+        }
+
+        /// <summary>
+        /// ROUND EVENTS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        {
+            if (e.Modified != RoundState.NotStarted)
+            {
+                Enabled = false;
+                Visible = false;
+            }
         }
 
         /// <summary>
@@ -83,7 +119,7 @@ namespace testgame.Mechanics
             currentTeam = currentTeam.Opposite();
 
             // Shortcut to put ball at the opposite side, if it is the opposite site.
-            if (currentTeam.GetScreenPosition() == Direction.Right) 
+            if (currentTeam.GetScreenPosition() == Direction.Right)
                 BallPosition.X *= 3;
 
             timerSwitcharooDo.IntervalMs *= multiplicateur;
@@ -97,7 +133,7 @@ namespace testgame.Mechanics
 
         private void finalizeFindingFirstServer()
         {
-            Match match = (Match) Game.Services.GetService<IMatch>();
+            Match match = (Match)Game.Services.GetService<IMatch>();
             isChoosing = false;
 
             // Set the team that'll be serving.

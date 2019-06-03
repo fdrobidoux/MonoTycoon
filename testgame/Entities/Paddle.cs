@@ -46,7 +46,7 @@ namespace testgame.Entities
                     throw new ArgumentOutOfRangeException(nameof(Team), Team, null);
             }
 
-            Position = new Vector2(x, (GraphicsDevice.Viewport.Height / 2f) /* - (Size.Y / 2f)*/ );
+            Position = new Vector2(x, (GraphicsDevice.Viewport.Height / 2f) - (Size.Y / 2f));
 
             Visible = true;
             Enabled = true;
@@ -54,7 +54,7 @@ namespace testgame.Entities
 
         private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
-            IMatch match = (Match)Game.Services.GetService<IMatch>();
+            IMatch match = (IMatch) sender;
 
             //_moving = (e.Modified.Any(MatchState.InProgress, MatchState.DemoMode));
 
@@ -66,14 +66,14 @@ namespace testgame.Entities
 
         private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            Visible = true;
             if (e.Modified == RoundState.NotStarted)
             {
                 Enabled = false;
-                Visible = true;
+                Visible = false;
             }
             else if (e.Modified == RoundState.WaitingForBallServe)
             {
+                Visible = true;
                 Enabled = true;
             }
         }
@@ -99,7 +99,7 @@ namespace testgame.Entities
 
         private void MoveWithMouse(GameTime gameTime)
         {
-            Position = new Vector2(Position.X, Mouse.GetState().Y);
+            Position = new Vector2(Position.X, Mouse.GetState().Y - (Size.Y / 2f));
         }
 
         private void MoveAI(GameTime gameTime)

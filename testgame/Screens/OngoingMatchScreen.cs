@@ -6,6 +6,7 @@ using testgame.Core;
 using testgame.Entities;
 using testgame.Entities.GUI;
 using testgame.Mechanics;
+using testgame.Mechanics.Serve;
 
 namespace testgame.Screens
 {
@@ -18,10 +19,12 @@ namespace testgame.Screens
         private Paddle AiPaddle { get; set; }
         private Ball Ball { get; set; }
         private ScoreDisplay ScoreDisplay { get; set; }
-        private FirstServerFinderEntity FirstServerFinderEntity { get; set; }
+        private FirstServerFinder FirstServerFinder { get; set; }
 
         private IMatch _match;
         private IRound _round => _match.CurrentRound;
+
+        public ServeBallHandler ServeBallHandler { get; private set; }
 
         // Always-active components.
         // TODO: Add always-active components.
@@ -29,49 +32,41 @@ namespace testgame.Screens
         public OngoingMatchScreen(Game game) : base(game)
         {
             Translucent = false;
-            
-            Ball = new Ball(game);
 
-            Components.Add(FirstServerFinderEntity = new FirstServerFinderEntity(Game, Ball));
-            Components.Add(ScoreDisplay = new ScoreDisplay(game));
+            Components.Add(Ball = new Ball(game));
             Components.Add(AiPaddle = new Paddle(game, Team.Red));
             Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
-            Components.Add(Ball);
+            Components.Add(ScoreDisplay = new ScoreDisplay(game));
+            Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
+            Components.Add(ServeBallHandler = new ServeBallHandler(Game));
         }
 
         public override void Initialize()
         {
             base.Initialize();
 
-            FirstServerFinderEntity.Enabled = false;
-            FirstServerFinderEntity.Visible = false;
-            
             _match = Game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += OnMatchStateChanges;
+            _match.MatchStateChanges += onMatchStateChanges;
         }
 
         protected override void LoadContent()
         {
             debugFont = Game.Content.Load<SpriteFont>("Arial");
         }
-        
-        public override void Update(GameTime gameTime) 
-            => base.Update(gameTime);
 
         /// <summary>
         /// MATCH EVENTS
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        private void onMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
-            IMatch match = Game.Services.GetService<IMatch>();
+            if (!(sender is IMatch match))
+                return;
 
-            if (e.HasChangedFrom(MatchState.NotStarted, MatchState.InstanciatedRound))
+            if (e.Modified == MatchState.InstanciatedRound)
             {
-                match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
-                FirstServerFinderEntity.Enabled = true;
-                FirstServerFinderEntity.Visible = true;
+                match.CurrentRound.RoundStateChanges += onRoundStateChanges;
             }
         }
 
@@ -80,15 +75,9 @@ namespace testgame.Screens
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            if (e.HasChangedFrom(RoundState.NotStarted, RoundState.WaitingForBallServe))
-            {
-                //if (Components.Contains(FirstServerFinderEntity)) 
-                //    Components.Remove(FirstServerFinderEntity);
-                FirstServerFinderEntity.Enabled = false;
-                FirstServerFinderEntity.Visible = false;
-            }
+            // TODO
         }
 
         public override void Draw(GameTime gt)
@@ -98,7 +87,7 @@ namespace testgame.Screens
             var spriteBatch = Game.GetSpriteBatch();
             spriteBatch.DrawString(this.debugFont, $"MatchState: {Enum.GetName(typeof(MatchState), this._match.State)}", Vector2.Zero,
                 Color.Salmon, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-            
+
             var roundState = (this._round != null) ? Enum.GetName(typeof(RoundState), this._round.State) : "NULL";
             spriteBatch.DrawString(this.debugFont, $"RoundState: {roundState}", new Vector2(0f, 20f),
                 Color.YellowGreen, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);

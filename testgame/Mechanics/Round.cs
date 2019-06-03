@@ -45,17 +45,16 @@ namespace testgame.Mechanics
 
         private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
+            if (sender is IRound round)
+            {
 
-        }
-
-        public override void Update(GameTime gt)
-        {
-
+            }
         }
 
         public new void Dispose()
         {
             RoundStateChanges = null;
+            base.Dispose();
         }
     }
 

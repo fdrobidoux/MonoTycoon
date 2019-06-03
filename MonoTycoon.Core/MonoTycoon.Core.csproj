@@ -1,12 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <LangVersion>7.2</LangVersion>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.7.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Engine\" />
   </ItemGroup>
 
 </Project>

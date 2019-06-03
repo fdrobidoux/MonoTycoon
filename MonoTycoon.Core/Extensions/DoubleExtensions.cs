@@ -1,9 +1,9 @@
 using System;
 
-namespace MonoTycoon.Core.Extensions
+namespace MonoTycoon.Core
 {
     public static class DoubleExtensions
     {
-        public static float F(this double theDouble) => (float) theDouble;
+        public static float ToFloat(this double theDouble) => (float) theDouble;
     }
 }

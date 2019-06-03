@@ -39,8 +39,9 @@ namespace testgame.Screens
                 if (Manager.ActiveScreen == this)
                 {
                     Manager.Pop();
+                    _match.StartNewRound();
+                    this.Dispose();
                 }
-                _match.StartNewRound();
             }
         }
 

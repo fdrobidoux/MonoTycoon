@@ -67,7 +67,7 @@ namespace MonoTycoon.Core.Screens
         public override void Update(GameTime gameTime)
         {
             // Major credits to Nils Dijk:
-            foreach (IUpdateable gc in this.Components.OfType<IUpdateable>().Where<IUpdateable>(x => x.Enabled).OrderBy<IUpdateable, int>(x => x.UpdateOrder))
+            foreach (IUpdateable gc in Components.OfType<IUpdateable>().Where(x => x.Enabled).OrderBy(x => x.UpdateOrder))
                 gc.Update(gameTime);
             base.Update(gameTime);
         }
@@ -78,8 +78,10 @@ namespace MonoTycoon.Core.Screens
         public override void Draw(GameTime gameTime)
         {
             // Major credits to Nils Dijk:
-            foreach (IDrawable gc in this.Components.OfType<IDrawable>().Where<IDrawable>(x => x.Visible).OrderBy<IDrawable,int>(x => x.DrawOrder) )
-                    gc.Draw(gameTime);
+            foreach (IDrawable gc in Components.OfType<IDrawable>().Where(x => x.Visible).OrderBy(x => x.DrawOrder))
+            {
+                gc.Draw(gameTime);
+            }
             base.Draw(gameTime);
         }
 

@@ -1,8 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoTycoon.Core.Screens;
-using System;
+using testgame.Core;
 using testgame.Entities;
+using testgame.Entities.GUI;
 using testgame.Mechanics;
 
 namespace testgame.Screens
@@ -15,6 +17,8 @@ namespace testgame.Screens
         private Paddle PlayerPaddle { get; set; }
         private Paddle AiPaddle { get; set; }
         private Ball Ball { get; set; }
+        private ScoreDisplay ScoreDisplay { get; set; }
+        private FirstServerFinderEntity FirstServerFinderEntity { get; set; }
 
         private IMatch _match;
         private IRound _round => _match.CurrentRound;
@@ -25,41 +29,71 @@ namespace testgame.Screens
         public OngoingMatchScreen(Game game) : base(game)
         {
             Translucent = false;
-            Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
+            
+            Ball = new Ball(game);
+
+            Components.Add(FirstServerFinderEntity = new FirstServerFinderEntity(Game, Ball));
+            Components.Add(ScoreDisplay = new ScoreDisplay(game));
             Components.Add(AiPaddle = new Paddle(game, Team.Red));
-            Components.Add(Ball = new Ball(game));
+            Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
+            Components.Add(Ball);
         }
 
         public override void Initialize()
         {
             base.Initialize();
+
+            FirstServerFinderEntity.Enabled = false;
+            FirstServerFinderEntity.Visible = false;
+            
             _match = Game.Services.GetService<IMatch>();
+            _match.MatchStateChanges += OnMatchStateChanges;
         }
 
         protected override void LoadContent()
         {
             debugFont = Game.Content.Load<SpriteFont>("Arial");
-            base.LoadContent();
-        }
-
-        public override void Activated()
-        {
-            
-        }
-
-        public override void Deactivated()
-        {
-
         }
         
-        public override void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime) 
+            => base.Update(gameTime);
+
+        /// <summary>
+        /// MATCH EVENTS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
-            base.Update(gameTime);
+            IMatch match = Game.Services.GetService<IMatch>();
+
+            if (e.HasChangedFrom(MatchState.NotStarted, MatchState.InstanciatedRound))
+            {
+                match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
+                FirstServerFinderEntity.Enabled = true;
+                FirstServerFinderEntity.Visible = true;
+            }
         }
 
-        public override void Draw(GameTime gameTime)
+        /// <summary>
+        /// ROUND EVENTS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            base.Draw(gameTime);
+            if (e.HasChangedFrom(RoundState.NotStarted, RoundState.WaitingForBallServe))
+            {
+                //if (Components.Contains(FirstServerFinderEntity)) 
+                //    Components.Remove(FirstServerFinderEntity);
+                FirstServerFinderEntity.Enabled = false;
+                FirstServerFinderEntity.Visible = false;
+            }
+        }
+
+        public override void Draw(GameTime gt)
+        {
+            base.Draw(gt);
 #if DEBUG
             var spriteBatch = Game.GetSpriteBatch();
             spriteBatch.DrawString(this.debugFont, $"MatchState: {Enum.GetName(typeof(MatchState), this._match.State)}", Vector2.Zero,
@@ -73,19 +107,14 @@ namespace testgame.Screens
 
         protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
+
             if (disposing)
             {
                 Ball?.Dispose();
                 PlayerPaddle?.Dispose();
                 AiPaddle?.Dispose();
             }
-
-            base.Dispose(disposing);
-        }
-
-        protected override void UnloadContent()
-        {
-            base.UnloadContent();
         }
     }
 }

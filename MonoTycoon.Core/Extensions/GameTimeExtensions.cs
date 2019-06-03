@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 
-namespace MonoTycoon.Core.Extensions
+namespace MonoTycoon.Core
 {
     public static class GameTimeExtensions
     {

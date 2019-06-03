@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using testgame.Core;
 
 namespace testgame.Mechanics
@@ -15,12 +14,6 @@ namespace testgame.Mechanics
         private int _scoreBlue;
         private int _scoreRed;
         private MatchState _state;
-        private Round _currentRound = null;
-
-        public Match(Game game, MatchState? startingState = null) : base(game)
-        {
-            _state = startingState ?? MatchState.DemoMode;
-        }
 
         public MatchState State
         {
@@ -59,11 +52,16 @@ namespace testgame.Mechanics
             }
         }
 
-        public Round CurrentRound { get => _currentRound; set => _currentRound = value; }
-        IRound IMatch.CurrentRound => _currentRound;
+        public Round CurrentRound { get; set; }
+        IRound IMatch.CurrentRound => CurrentRound;
 
         public event EventHandler<Team> TeamScores;
         public event EventHandler<ValueChangedEvent<MatchState>> MatchStateChanges;
+
+        public Match(Game game, MatchState? startingState) : base(game)
+        {
+            _state = startingState ?? MatchState.DemoMode;
+        }
 
         public override void Initialize()
         {
@@ -71,7 +69,7 @@ namespace testgame.Mechanics
             MatchStateChanges += OnMatchStateChanges;
             _scoreBlue = 0;
             _scoreRed = 0;
-            base.Initialize();
+            StartNewRound();
         }
 
         public override void Update(GameTime gameTime)
@@ -91,33 +89,36 @@ namespace testgame.Mechanics
             }
         }
 
+        public int GetScore(Team team)
+        {
+            switch (team)
+            {
+                case Team.Red: return ScoreRed;
+                case Team.Blue: return ScoreBlue;
+                default: throw new ArgumentOutOfRangeException(nameof(team), team, null);
+            }
+        }
+
         public Round StartNewRound()
         {
-            if (_currentRound == null)
+            if (CurrentRound == null || State == MatchState.Finished)
             {
-                CurrentRound = new Round(Game, RoundState.NotStarted, 1, Team.Blue);
+                CurrentRound = new Round(Game, RoundState.NotStarted, 1);
                 State = MatchState.InstanciatedRound;
             }
             else
             {
                 CurrentRound.Number++;
                 CurrentRound.ServingTeam = Team.Blue; // TODO: Set serving team based on last round winner.
-                CurrentRound.State = RoundState.NotStarted;
+                CurrentRound.State = RoundState.WaitingForBallServe;
             }
 
-            return _currentRound;
+            return CurrentRound;
         }
 
         private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
-            /*
-            if (!(sender is Match match)) 
-                return;
             
-            if (e.Modified == MatchState.InstanciatedRound)
-                // TODO: Change it so that InProgress is set only after a timer.
-                State = MatchState.InProgress;
-            */
         }
 
         #endregion
@@ -134,6 +135,7 @@ namespace testgame.Mechanics
         event EventHandler<ValueChangedEvent<MatchState>> MatchStateChanges;
 
         void AddOnePointTo(Team team);
+        int GetScore(Team team);
         Round StartNewRound();
     }
 
@@ -144,7 +146,7 @@ namespace testgame.Mechanics
         /// </summary>
         NotStarted,
         /// <summary>
-        /// When `_currentRound` now has an instance of a `Round` object.
+        /// When `_currentRound` now has an instance of a `Round` object. Finding the first server...
         /// </summary>
         InstanciatedRound,
         /// <summary>

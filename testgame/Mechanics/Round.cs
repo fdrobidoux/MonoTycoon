@@ -32,31 +32,39 @@ namespace testgame.Mechanics
         /// <param name="state">Starting state</param>
         /// <param name="number">Number of round we're at.</param>
         /// <param name="servingTeam">Who serves.</param>
-        public Round(Game game, RoundState state, ushort number, Team servingTeam) : base(game)
+        public Round(Game game, RoundState state, ushort number) : base(game)
         {
             State = state;
             Number = number;
-            ServingTeam = servingTeam;
+        }
+
+        public override void Initialize()
+        {
+            RoundStateChanges += OnRoundStateChanges;
+        }
+
+        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        {
+
+        }
+
+        public override void Update(GameTime gt)
+        {
+
         }
 
         public new void Dispose()
         {
             RoundStateChanges = null;
         }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
     }
 
-    public interface IRound : IDisposable
+    public interface IRound : IGameComponent, IUpdateable, IDisposable
     {
         RoundState State { get; set; }
         ushort Number { get; }
-        Team ServingTeam { get; }
+        Team ServingTeam { get; set; }
         event EventHandler<ValueChangedEvent<RoundState>> RoundStateChanges;
-        void Dispose();
     }
 
     public enum RoundState : byte

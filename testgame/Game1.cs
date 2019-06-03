@@ -6,6 +6,7 @@ using MonoTycoon.Core.Screens;
 using testgame.Core;
 using testgame.Mechanics;
 using testgame.Screens;
+using testgame.Entities.GUI;
 
 namespace testgame
 {
@@ -23,7 +24,6 @@ namespace testgame
         // Screens
         private OngoingMatchScreen ongoingMatchScreen;
         private StartGameScreen startGameScreen;
-        private DetermineFirstServerScreen determineFirstServerScreen;
 
         public Game1() : base()
         {
@@ -35,18 +35,11 @@ namespace testgame
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // Pong Game Components
-
             // Match Service
-            Match = new Match(this, MatchState.NotStarted);
-            Services.AddService<IMatch>(Match);
-            Components.Add(Match);
+            Services.AddService<IMatch>(Match = new Match(this, MatchState.NotStarted));
 
             // ScreenManager Service
-            this.ongoingMatchScreen = new OngoingMatchScreen(this);
-            this.ScreenManager = new ScreenManager(this, ongoingMatchScreen);
-
-            Services.AddService<IScreenManager>(ScreenManager);
+            Services.AddService<IScreenManager>(ScreenManager = new ScreenManager(this, new OngoingMatchScreen(this)));
             Components.Add(ScreenManager);
         }
 
@@ -55,8 +48,11 @@ namespace testgame
             base.Initialize();
             // TODO: Remove those parts when Menu is done.
             Match.State = MatchState.NotStarted;
-            startGameScreen = new StartGameScreen(this);
-            ScreenManager.Push(startGameScreen);
+            if (!(ScreenManager.Peek() is StartGameScreen))
+            {
+                startGameScreen = new StartGameScreen(this);
+                ScreenManager.Push(startGameScreen);
+            }
         }
 
         protected override void LoadContent()
@@ -82,9 +78,7 @@ namespace testgame
             GraphicsDevice.Clear(Color.White);
             
             SpriteBatch.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.AnisotropicWrap);
-            
             base.Draw(gameTime);
-
             SpriteBatch.End();
         }
     }

@@ -1,17 +1,78 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System.Text;
+using testgame.Mechanics;
+using MonoTycoon.Core.Graphics;
+using System.Diagnostics;
 
 namespace testgame.Entities.GUI
 {
-    class ScoreDisplay : DrawableGameComponent
+    public class ScoreDisplay : DrawableGameComponent
     {
+        private SpriteFont _font;
+        private IMatch _match;
+        private const String STR_FORMAT = "Team {0}: {1}";
+
+        private readonly MatchState[] STATES_WHEN_DISABLED = { MatchState.NotStarted, MatchState.DemoMode };
+
         public ScoreDisplay(Game game) : base(game)
         {
-
+            _match = game.Services.GetService<IMatch>();
+            _match.MatchStateChanges += onMatchStateChanges;
         }
 
+        public override void Initialize()
+        {
+            base.Initialize();
+        }
 
+        protected override void LoadContent()
+        {
+            _font = Game.Content.Load<SpriteFont>("Arial");
+        }
+
+        private void onMatchStateChanges(object sender, Core.ValueChangedEvent<MatchState> e)
+        {
+            Enabled = (!e.Modified.Any(STATES_WHEN_DISABLED));
+        }
+
+        public override void Update(GameTime gt)
+        {
+            base.Update(gt);
+        }
+
+        private string generateTeamText(Team team)
+        {
+            return string.Format(STR_FORMAT, team, _match.GetScore(team));
+        }
+
+        public override void Draw(GameTime gt)
+        {
+            var sb = Game.GetSpriteBatch();
+            Vector2 position;
+            float yPos;
+            foreach (Team team in Enum.GetValues(typeof(Team)))
+            {
+                var measure = _font.MeasureString(generateTeamText(team));
+                yPos = MathF.Round(Game.GraphicsDevice.Viewport.Bounds.Height * 0.05F);
+
+                switch (team.GetScreenPosition())
+                {
+                    case Direction.Left:
+                        position = new Vector2(MathF.Round(Game.GraphicsDevice.Viewport.Bounds.Width * 0.01F), yPos);
+                        break;
+                    case Direction.Right:
+                        position = new Vector2(MathF.Round(Game.GraphicsDevice.Viewport.Bounds.Width * 0.99F) - measure.X, yPos);
+                        break;
+                    default:
+                        position = Vector2.Zero;
+                        break;
+                }
+
+                sb.DrawString(_font, generateTeamText(team), position, team.ToColor());
+            }
+        }
     }
 }

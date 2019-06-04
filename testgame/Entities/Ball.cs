@@ -10,15 +10,12 @@ namespace testgame.Entities
 {
     public class Ball : DrawableGameComponent
     {
-        private const double STARTING_VELOCITY = 100;
+        private const double STARTING_VELOCITY = 200;
 
         public double Velocity = STARTING_VELOCITY;
         public Vector2 Direction = Vector2.UnitX;
 
-        public Transform2 Transform { 
-            get; 
-            set; 
-        }
+        public Transform2 Transform { get; set; }
 
         public Texture2D Sprite;
 
@@ -38,7 +35,7 @@ namespace testgame.Entities
             Transform = new Transform2(Vector2.Zero, new Size2(50, 50), 1f);
 
             IMatch _match = Game.Services.GetService<IMatch>();
-            
+
             _match.MatchStateChanges += OnMatchStateChanges;
 
             Velocity = STARTING_VELOCITY;
@@ -58,7 +55,7 @@ namespace testgame.Entities
                     SetRoundEvents(match.CurrentRound);
             }
         }
-        
+
         private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
             Visible = !e.Modified.Equals(RoundState.NotStarted);
@@ -111,8 +108,8 @@ namespace testgame.Entities
             Game.GetSpriteBatch().Draw(Sprite, rect, Color.White);
 #if DEBUG
             var str = $"Transform {Transform.ToRectangle().ToString()}";
-            var position = new Vector2(x: Game.GraphicsDevice.Viewport.Width, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
-            Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Azure, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+            //var position = new Vector2(x: Game.GraphicsDevice.Viewport.Width, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
+            //Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Azure, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
             Console.WriteLine($"Transform {Transform.ToString()}");
 #endif 
         }

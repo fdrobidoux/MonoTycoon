@@ -62,8 +62,6 @@ namespace testgame.Mechanics.Serve
             {
                 Enabled = false;
 
-                TheBall.Enabled = true;
-
                 // Set velocity to Ball.
                 if (ServingPaddle.Team == Team.Blue)
                     TheBall.Direction = Vector2.UnitX * -1;

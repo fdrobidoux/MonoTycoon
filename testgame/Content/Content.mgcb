@@ -38,6 +38,18 @@
 /processorParam:Quality=Best
 /build:blue_hit.wav
 
+#begin firstserver_chosen.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:firstserver_chosen.wav
+
+#begin firstserver_switch.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:firstserver_switch.wav
+
 #begin red_hit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -67,10 +79,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=DxtCompressed
 /build:starfield.dds
-
-#begin switcharoo.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:switcharoo.wav
 

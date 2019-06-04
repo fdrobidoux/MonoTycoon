@@ -10,12 +10,10 @@ using testgame.Entities.GUI;
 
 namespace testgame
 {
-    public class Game1 : Game
+    public class Game1 : MonoTycoon.Core.TycoonGame
     {
         GraphicsDeviceManager graphics;
         public static SpriteBatch SpriteBatch { get; private set; }
-        
-        public float TotalSecondsCountdown;
 
         // Services
         private Match Match { get; }
@@ -27,9 +25,10 @@ namespace testgame
 
         public Game1() : base()
         {
-            graphics = new GraphicsDeviceManager(this) {
-                PreferredBackBufferWidth = 800, 
-                PreferredBackBufferHeight = 600
+            graphics = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = 1024,
+                PreferredBackBufferHeight = 768
             };
 
             Content.RootDirectory = "Content";
@@ -68,14 +67,14 @@ namespace testgame
             // Exit if player presses Esc.
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || kb.IsKeyDown(Keys.Escape))
                 Exit();
-            
+
             base.Update(gameTime);
         }
-        
+
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.White);
-            
+
             SpriteBatch.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.AnisotropicWrap);
             base.Draw(gameTime);
             SpriteBatch.End();

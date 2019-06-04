@@ -15,23 +15,24 @@ namespace testgame.Mechanics.Serve
         private Ball TheBall;
         private Team currentTeam;
 
-        # region "Timers"
+        #region "Timers"
         public TimerTask timerSwitcharooDo;
         public double multiplicateurInterval = 1.1D;
         public TimerTask timerEndSwitcharoo;
         public TimerTask timerEndScaling;
         #endregion
 
-        SoundEffect soundSwitchingBall;
-        
+        #region "Sounds"
+        private SoundEffect sfx_Switch;
+        private SoundEffect sfx_Chosen;
+        #endregion
+
         public FirstServerFinder(Game game, Ball ball) : base(game)
         {
             TheBall = ball;
             timerSwitcharooDo = new TimerTask(alternateBallPosition, 33, true);
             timerEndSwitcharoo = new TimerTask(onEndSwitcharoo, int.MaxValue, false);
             timerEndScaling = new TimerTask(finalizeFindingFirstServer, TimeSpan.FromSeconds(2).TotalMilliseconds, false);
-
-            EnabledChanged += OnEnabledChanged;
         }
 
         public override void Initialize()
@@ -40,19 +41,15 @@ namespace testgame.Mechanics.Serve
 
             IMatch _match = Game.Services.GetService<IMatch>();
             _match.MatchStateChanges += onMatchStateChanges;
-            
+
             currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
 
-            timerSwitcharooDo.Reset();
-            timerSwitcharooDo.Enabled = true;
-            timerSwitcharooDo.Recurring = true;
+            timerSwitcharooDo.Reset(modEnabled: true);
 
-            timerEndSwitcharoo.Reset();
-            timerEndSwitcharoo.Enabled = true;
+            timerEndSwitcharoo.Reset(modEnabled: true);
             timerEndSwitcharoo.IntervalMs = TimeSpan.FromMilliseconds(new Random().Next(2000, 3001)).TotalMilliseconds;
 
-            timerEndScaling.Reset();
-            timerEndScaling.Enabled = false;
+            timerEndScaling.Reset(modEnabled: false);
 
             TheBall.Transform.Scale = 1f;
 
@@ -60,10 +57,10 @@ namespace testgame.Mechanics.Serve
             Visible = false;
         }
 
-        protected new void OnEnabledChanged(object sender, EventArgs args)
+        protected override void LoadContent()
         {
-            IMatch _match = Game.Services.GetService<IMatch>();
-            match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
+            sfx_Switch = Game.Content.Load<SoundEffect>("firstserver_switch");
+            sfx_Chosen = Game.Content.Load<SoundEffect>("firstserver_chosen");
         }
 
         /// <summary>
@@ -110,9 +107,7 @@ namespace testgame.Mechanics.Serve
         {
             timerSwitcharooDo.Update(gt);
             timerEndSwitcharoo.Update(gt);
-            timerEndScaling.Update(gt); 
-            
-            
+            timerEndScaling.Update(gt);
         }
 
         private void alternateBallPosition()
@@ -126,15 +121,17 @@ namespace testgame.Mechanics.Serve
 
             TheBall.Transform.Location = newPosition;
 
-            calculateRectangle();
-
             timerSwitcharooDo.IntervalMs *= multiplicateurInterval;
+
+            sfx_Switch.CreateInstance().Play();
         }
 
         private void onEndSwitcharoo()
         {
             timerSwitcharooDo.Enabled = false;
             timerEndScaling.Enabled = true;
+
+            sfx_Chosen.CreateInstance().Play();
         }
 
         private void finalizeFindingFirstServer()
@@ -159,18 +156,6 @@ namespace testgame.Mechanics.Serve
             match.CurrentRound.State = RoundState.WaitingForBallServe;
         }
 
-        private void calculateRectangle()
-        {
-            //rect = TheBall.Transform.ToRectangle();
-
-            //if (timerEndScaling.Enabled && !timerEndScaling.IsFinished)
-            //    rect.Size = rect.Size.Scale(ballScale);
-
-            //rect = new Rectangle(rect.Location - rect.Size.DivideBy(2), rect.Size);
-
-            //return rect;
-        }
-
         /// <summary>
         /// Draw method.
         /// </summary>
@@ -183,7 +168,7 @@ namespace testgame.Mechanics.Serve
 
         private float getBallScale()
         {
-            float x = (float) TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
+            float x = (float)TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
             return MathF.Abs(MathF.Sin((6 * x) + 0.5f)) + 0.5f;
         }
     }

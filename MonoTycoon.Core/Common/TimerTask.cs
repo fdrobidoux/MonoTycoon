@@ -14,7 +14,9 @@ namespace MonoTycoon.Core.Common
         public bool Enabled { get; set; }
         public int UpdateOrder => 0;
 
+        [Obsolete("Not used for this component.")]
         public event EventHandler<EventArgs> EnabledChanged;
+        [Obsolete("Not used for this component.")]
         public event EventHandler<EventArgs> UpdateOrderChanged;
 
         public double IntervalMs
@@ -60,11 +62,18 @@ namespace MonoTycoon.Core.Common
         }
 
         public void Update(GameTime gameTime) => Update(gameTime.ElapsedGameTime);
-        
-        public void Reset()
+
+        /// <summary>
+        ///     Resets the timer, and sets the timer as unfinished.
+        /// </summary>
+        /// <param name="modEnabled">A <see langword="bool"/> if it's necessary to change enabled status, or <see langword="null"/> if otherwise.</param>
+        public void Reset(bool? modEnabled = null)
         {
             _elapsedMs = 0;
             _isFinished = false;
+
+            if (modEnabled is bool en) 
+                Enabled = en;
         }
     }
 }

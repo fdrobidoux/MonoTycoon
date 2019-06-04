@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoTycoon.Core;
 using testgame.Core;
 using testgame.Mechanics;
 
@@ -54,7 +55,7 @@ namespace testgame.Entities
 
         private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
-            IMatch match = (IMatch) sender;
+            IMatch match = (IMatch)sender;
 
             //_moving = (e.Modified.Any(MatchState.InProgress, MatchState.DemoMode));
 

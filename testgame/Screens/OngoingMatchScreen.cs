@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoTycoon.Core.Screens;
@@ -43,10 +44,10 @@ namespace testgame.Screens
 
         public override void Initialize()
         {
-            base.Initialize();
-
             _match = Game.Services.GetService<IMatch>();
             _match.MatchStateChanges += onMatchStateChanges;
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
@@ -77,32 +78,38 @@ namespace testgame.Screens
         /// <param name="e"></param>
         private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            // TODO
+            if (!(sender is IRound round))
+                return;
+
+            if (e.Modified.Equals(RoundState.WaitingForBallServe))
+            {
+                Paddle servingPaddle = Components.OfType<Paddle>().Where((x) => x.Team == round.ServingTeam).Single();
+                ServeBallHandler.AssignEntitiesNecessaryForServing(Ball, servingPaddle);
+            }
         }
 
         public override void Draw(GameTime gt)
         {
             base.Draw(gt);
 #if DEBUG
-            var spriteBatch = Game.GetSpriteBatch();
-            spriteBatch.DrawString(this.debugFont, $"MatchState: {Enum.GetName(typeof(MatchState), this._match.State)}", Vector2.Zero,
+            string matchState = Enum.GetName(typeof(MatchState), _match.State);
+            Game.GetSpriteBatch().DrawString(debugFont, $"MatchState: {matchState}", Vector2.Zero,
                 Color.Salmon, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 
-            var roundState = (this._round != null) ? Enum.GetName(typeof(RoundState), this._round.State) : "NULL";
-            spriteBatch.DrawString(this.debugFont, $"RoundState: {roundState}", new Vector2(0f, 20f),
+            string roundState = (this._round != null) ? Enum.GetName(typeof(RoundState), this._round.State) : "NULL";
+            Game.GetSpriteBatch().DrawString(debugFont, $"RoundState: {roundState}", new Vector2(0f, 20f),
                 Color.YellowGreen, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 #endif
         }
 
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-
             if (disposing)
             {
                 Ball?.Dispose();
                 PlayerPaddle?.Dispose();
                 AiPaddle?.Dispose();
+                ServeBallHandler?.Dispose();
             }
         }
     }

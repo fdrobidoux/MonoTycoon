@@ -40,7 +40,7 @@ namespace testgame
             Components.Add(Match);
 
             // ScreenManager Service
-            ScreenManager = new ScreenManager(this, new OngoingMatchScreen(this));
+            ScreenManager = new ScreenManager(this, ongoingMatchScreen = new OngoingMatchScreen(this));
             Services.AddService<IScreenManager>(ScreenManager);
             Components.Add(ScreenManager);
         }

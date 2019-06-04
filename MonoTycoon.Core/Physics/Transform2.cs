@@ -55,13 +55,13 @@ namespace MonoTycoon.Core.Physics
         public bool Intersects(Point point) => ToRectangle().Contains(point);
         public bool Intersects(Transform2 other) => ToRectangle().Intersects(other.ToRectangle());
         public Transform2 WithSize(Size2 size) => new Transform2(Location, Rotation, size, Scale, ZIndex);
-        public Rectangle ToRectangle() => new Rectangle((Location * Scale).ToPoint(), (Size * Scale).ToPoint());
+        public Rectangle ToRectangle() => new Rectangle(Location.ToPoint(), (Size * Scale).ToPoint());
         public Transform2 WithPadding(int x, int y) => WithPadding(new Size2(x, y));
-        public Transform2 WithPadding(Size2 amt) => new Transform2(Location + amt.ToVector(), Rotation, Size - (amt * 2), Scale, ZIndex);
+        public Transform2 WithPadding(Size2 amt) => new Transform2(Location + amt.ToVector2(), Rotation, Size - (amt * 2), Scale, ZIndex);
 
         public override string ToString()
         {
-            return $"{Location} {Size} {Rotation} {Scale} {ZIndex}";
+            return $"{Location} {Size} {Rotation} {Scale.ToString("F4")} {ZIndex}";
         }
 
         public static Transform2 operator +(Transform2 t1, Transform2 t2)
@@ -84,6 +84,6 @@ namespace MonoTycoon.Core.Physics
             return this + new Transform2(Vector2.Zero, Rotation2.Default, Size2.Zero, Scale / scale, ZIndex);
         }
 
-        public Vector2 Center() => (Size / 2).ToVector() + Location;
+        public Vector2 Center() => (Size / 2).ToVector2() + Location;
     }
 }

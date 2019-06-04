@@ -114,7 +114,7 @@ namespace testgame.Entities
 
         public void ConstrainWithinBounds(Rectangle viewBounds)
         {
-            Vector2 boundOpposite = (Size + Position);
+            //Vector2 boundOpposite = (Size + Position);
 
             Position = new Vector2(
                 Math.Clamp(Position.X, viewBounds.Left, viewBounds.Right - Size.X),

@@ -25,7 +25,7 @@ namespace MonoTycoon.Core.Physics
             return new Point(Width, Height);
         }
 
-        public Vector2 ToVector()
+        public Vector2 ToVector2()
         {
             return new Vector2(Width, Height);
         }

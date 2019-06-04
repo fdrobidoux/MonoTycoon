@@ -5,25 +5,26 @@ using MonoTycoon.Core.Common;
 using MonoTycoon.Core.Graphics;
 using MonoTycoon.Core.Physics;
 using System;
-using System.Collections.Generic;
 using testgame.Core;
 using testgame.Entities;
 
-namespace testgame.Mechanics
+namespace testgame.Mechanics.Serve
 {
     public class FirstServerFinder : DrawableGameComponent
     {
         private Ball TheBall;
-        private Point BallPosition;
         private Team currentTeam;
         private bool isChoosing = true;
 
+        private Vector2 ballPosition;
+        private double ballScale;
+        private Rectangle lastRectangle;
+
         # region "Timers"
         public TimerTask timerSwitcharooDo;
-        public float multiplicateur = 1.1F;
+        public double multiplicateurInterval = 1.1D;
         public TimerTask timerEndSwitcharoo;
         public TimerTask timerEndScaling;
-        private double ballScale;
         #endregion
 
         public FirstServerFinder(Game game, Ball ball) : base(game)
@@ -55,7 +56,7 @@ namespace testgame.Mechanics
             timerEndScaling.Reset();
             timerEndScaling.Enabled = false;
 
-            ballScale = 3F;
+            ballScale = 1D;
 
             Enabled = false;
             Visible = false;
@@ -105,24 +106,25 @@ namespace testgame.Mechanics
 
             if (timerEndScaling.Enabled)
             {
-                ballScale = setBallScale(gt) * gt.ElapsedGameTime.TotalMilliseconds;
+                ballScale = getBallScale(gt) * gt.ElapsedGameTime.TotalMilliseconds;
+                lastRectangle = calculateRectangle();
             }
         }
 
         private void alternateBallPosition()
         {
-            Vector2 center = Game.GraphicsDevice.Viewport.Bounds.Center.ToVector2();
-            center.X /= 2f;
-            BallPosition = center.ToPoint();
-
-            // This is where we switch teams.
-            currentTeam = currentTeam.Opposite();
+            Vector2 newPosition = Game.GraphicsDevice.Viewport.Bounds.Center.ToVector2();
+            newPosition.X /= 2f;
 
             // Shortcut to put ball at the opposite side, if it is the opposite site.
-            if (currentTeam.GetScreenPosition() == Direction.Right)
-                BallPosition.X *= 3;
+            if ((currentTeam = currentTeam.Opposite()).GetScreenPosition() == Direction.Right)
+                newPosition.X *= 3f;
 
-            timerSwitcharooDo.IntervalMs *= multiplicateur;
+            ballPosition = newPosition;
+
+            lastRectangle = calculateRectangle();
+
+            timerSwitcharooDo.IntervalMs *= multiplicateurInterval;
         }
 
         private void onEndSwitcharoo()
@@ -134,7 +136,13 @@ namespace testgame.Mechanics
         private void finalizeFindingFirstServer()
         {
             Match match = (Match)Game.Services.GetService<IMatch>();
+
             isChoosing = false;
+
+            TheBall.Visible = true;
+            Visible = false;
+
+            TheBall.Transform.Location = ballPosition;
 
             // Set the team that'll be serving.
             match.CurrentRound.ServingTeam = currentTeam;
@@ -146,27 +154,33 @@ namespace testgame.Mechanics
             match.CurrentRound.State = RoundState.WaitingForBallServe;
         }
 
+        private Rectangle calculateRectangle()
+        {
+            int startingSize = TheBall.Transform.Size.Width;
+
+            if (timerEndScaling.Enabled && !timerEndScaling.IsFinished)
+                startingSize = (int)Math.Round(startingSize + ballScale, 0);
+
+            Vector2 scaledBallSize = new Vector2(startingSize);
+
+            return new Rectangle(
+                location: (ballPosition - (scaledBallSize / 2f)).ToPoint(),
+                size:     scaledBallSize.ToPoint());
+        }
+
         /// <summary>
         /// Draw method.
         /// </summary>
         /// <param name="gt"></param>
         public override void Draw(GameTime gt)
         {
-            int startingSize = 100;
-
-            if (timerEndScaling.Enabled && !timerEndScaling.IsFinished)
-                startingSize = (int)Math.Round(startingSize + ballScale, 0);
-
-            Point scaledBallSize = new Point(startingSize);
-
-            //var origin = BallTexture.Bounds.Center.ToVector2();
-            Game.GetSpriteBatch().Draw(TheBall.Sprite, new Rectangle(BallPosition - scaledBallSize.DivideBy(2), scaledBallSize), Color.White);
+            Game.GetSpriteBatch().Draw(TheBall.Sprite, lastRectangle, Color.White);
         }
 
-        private double setBallScale(GameTime gt)
+        private double getBallScale(GameTime gt)
         {
             double x = TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
-            return Math.Abs(Math.Sin(x * 5));
+            return Math.Abs(Math.Sin((5 * x) + 0.5f)) + 0.5f;
         }
     }
 }

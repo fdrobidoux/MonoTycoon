@@ -10,12 +10,15 @@ namespace testgame.Entities
 {
     public class Ball : DrawableGameComponent
     {
-        private const double STARTING_VELOCITY = 100d;
+        private const double STARTING_VELOCITY = 100;
 
         public double Velocity = STARTING_VELOCITY;
         public Vector2 Direction = Vector2.UnitX;
 
-        public Transform2 Transform { get; set; }
+        public Transform2 Transform { 
+            get; 
+            set; 
+        }
 
         public Texture2D Sprite;
 
@@ -60,6 +63,11 @@ namespace testgame.Entities
         {
             Visible = !e.Modified.Equals(RoundState.NotStarted);
             Enabled = e.Modified.Equals(RoundState.InProgress);
+
+            if (e.Modified.Equals(RoundState.WaitingForBallServe))
+            {
+                Transform.Scale = 1f;
+            }
         }
 
         private void SetRoundEvents(IRound round) => round.RoundStateChanges += OnRoundStateChanges;
@@ -81,7 +89,8 @@ namespace testgame.Entities
 
         public override void Update(GameTime gameTime)
         {
-            Transform.Location += Direction * (float)(Velocity * gameTime.ElapsedGameTime.TotalMilliseconds);
+            var totalGT = gameTime.ElapsedGameTime.TotalSeconds;
+            Transform.Location += Direction * (float)(STARTING_VELOCITY * totalGT);
             ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
         }
 
@@ -98,6 +107,7 @@ namespace testgame.Entities
         public override void Draw(GameTime gameTime)
         {
             var rect = Transform.ToRectangle();
+            rect.Location = rect.Location - rect.Size.DivideBy(2);
             Game.GetSpriteBatch().Draw(Sprite, rect, Color.White);
 #if DEBUG
             var str = $"Transform {Transform.ToRectangle().ToString()}";

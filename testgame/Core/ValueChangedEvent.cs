@@ -4,7 +4,7 @@ using MonoTycoon.Core.Common;
 
 namespace testgame.Core
 {
-    public class ValueChangedEvent<T> where T : struct, IConvertible
+    public class ValueChangedEvent<T> where T : struct, IConvertible 
     {
         private DictionaryWithDefaults<KeyValuePair<T, T>, bool> _hasChangedDict;
         
@@ -15,13 +15,15 @@ namespace testgame.Core
         {
             Old = old;
             Modified = modified;
-            _hasChangedDict = new DictionaryWithDefaults<KeyValuePair<T, T>, bool>(false)
-            {
-                {new KeyValuePair<T, T>(old, modified), true}
-            };
         }
 
         public bool HasChangedFrom(T old, T modified) 
-            => _hasChangedDict[new KeyValuePair<T, T>(old, modified)];
+            => Was(old) && IsNow(modified);
+
+        public bool Was(T old) 
+            => Old.Equals(old);
+
+        public bool IsNow(T modified) 
+            => Modified.Equals(modified);
     }
 }

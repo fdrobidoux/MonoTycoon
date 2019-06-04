@@ -45,21 +45,13 @@ namespace testgame.Mechanics.Serve
             if (!(sender is IMatch match))
                 return;
 
-            if (e.Modified.Equals(MatchState.InstanciatedRound))
-            {
+            if (e.IsNow(MatchState.InstanciatedRound))
                 match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
-            }
         }
 
         private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            //if (!(sender is IRound round))
-            //    return;
-
-            if (e.Modified.Equals(RoundState.WaitingForBallServe))
-                Enabled = true;
-            else
-                Enabled = false;
+            Enabled = e.IsNow(RoundState.WaitingForBallServe);
         }
 
         public override void Update(GameTime gt)
@@ -70,7 +62,7 @@ namespace testgame.Mechanics.Serve
             {
                 Enabled = false;
 
-                TheBall.Velocity = (float)(1f * gt.ElapsedGameTime.TotalSeconds);
+                TheBall.Enabled = true;
 
                 // Set velocity to Ball.
                 if (ServingPaddle.Team == Team.Blue)

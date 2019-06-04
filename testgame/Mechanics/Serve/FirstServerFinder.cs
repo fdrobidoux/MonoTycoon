@@ -16,9 +16,9 @@ namespace testgame.Mechanics.Serve
         private Team currentTeam;
         private bool isChoosing = true;
 
-        private Vector2 ballPosition;
-        private double ballScale;
-        private Rectangle lastRectangle;
+        //private Vector2 ballPosition;
+        private float ballScale;
+        //private Rectangle lastRectangle;
 
         # region "Timers"
         public TimerTask timerSwitcharooDo;
@@ -41,7 +41,7 @@ namespace testgame.Mechanics.Serve
 
             IMatch _match = Game.Services.GetService<IMatch>();
             _match.MatchStateChanges += onMatchStateChanges;
-
+            
             isChoosing = true;
             currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
 
@@ -56,7 +56,7 @@ namespace testgame.Mechanics.Serve
             timerEndScaling.Reset();
             timerEndScaling.Enabled = false;
 
-            ballScale = 1D;
+            TheBall.Transform.Scale = 1f;
 
             Enabled = false;
             Visible = false;
@@ -103,12 +103,6 @@ namespace testgame.Mechanics.Serve
             timerSwitcharooDo.Update(gt);
             timerEndSwitcharoo.Update(gt);
             timerEndScaling.Update(gt);
-
-            if (timerEndScaling.Enabled)
-            {
-                ballScale = getBallScale(gt) * gt.ElapsedGameTime.TotalMilliseconds;
-                lastRectangle = calculateRectangle();
-            }
         }
 
         private void alternateBallPosition()
@@ -120,9 +114,9 @@ namespace testgame.Mechanics.Serve
             if ((currentTeam = currentTeam.Opposite()).GetScreenPosition() == Direction.Right)
                 newPosition.X *= 3f;
 
-            ballPosition = newPosition;
+            TheBall.Transform.Location = newPosition;
 
-            lastRectangle = calculateRectangle();
+            calculateRectangle();
 
             timerSwitcharooDo.IntervalMs *= multiplicateurInterval;
         }
@@ -140,9 +134,12 @@ namespace testgame.Mechanics.Serve
             isChoosing = false;
 
             TheBall.Visible = true;
+            TheBall.Transform.Scale = 1f;
+
+            // Remove visibility.
             Visible = false;
 
-            TheBall.Transform.Location = ballPosition;
+            timerEndScaling.Enabled = false;
 
             // Set the team that'll be serving.
             match.CurrentRound.ServingTeam = currentTeam;
@@ -152,20 +149,20 @@ namespace testgame.Mechanics.Serve
 
             // Set the round's state.
             match.CurrentRound.State = RoundState.WaitingForBallServe;
+
+            match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
         }
 
-        private Rectangle calculateRectangle()
+        private void calculateRectangle()
         {
-            int startingSize = TheBall.Transform.Size.Width;
+            //rect = TheBall.Transform.ToRectangle();
 
-            if (timerEndScaling.Enabled && !timerEndScaling.IsFinished)
-                startingSize = (int)Math.Round(startingSize + ballScale, 0);
+            //if (timerEndScaling.Enabled && !timerEndScaling.IsFinished)
+            //    rect.Size = rect.Size.Scale(ballScale);
 
-            Vector2 scaledBallSize = new Vector2(startingSize);
+            //rect = new Rectangle(rect.Location - rect.Size.DivideBy(2), rect.Size);
 
-            return new Rectangle(
-                location: (ballPosition - (scaledBallSize / 2f)).ToPoint(),
-                size:     scaledBallSize.ToPoint());
+            //return rect;
         }
 
         /// <summary>
@@ -174,13 +171,15 @@ namespace testgame.Mechanics.Serve
         /// <param name="gt"></param>
         public override void Draw(GameTime gt)
         {
-            Game.GetSpriteBatch().Draw(TheBall.Sprite, lastRectangle, Color.White);
+            if (timerEndScaling.Enabled)
+                TheBall.Transform.Scale = getBallScale();
+            //Game.GetSpriteBatch().Draw(TheBall.Sprite, lastRectangle, Color.White);
         }
 
-        private double getBallScale(GameTime gt)
+        private float getBallScale()
         {
-            double x = TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
-            return Math.Abs(Math.Sin((5 * x) + 0.5f)) + 0.5f;
+            float x = (float) TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
+            return MathF.Abs(MathF.Sin((5 * x) + 0.5f)) + 0.5f;
         }
     }
 }

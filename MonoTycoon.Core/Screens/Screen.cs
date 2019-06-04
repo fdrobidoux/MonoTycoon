@@ -79,9 +79,7 @@ namespace MonoTycoon.Core.Screens
         {
             // Major credits to Nils Dijk:
             foreach (IDrawable gc in Components.OfType<IDrawable>().Where(x => x.Visible).OrderBy(x => x.DrawOrder))
-            {
                 gc.Draw(gameTime);
-            }
             base.Draw(gameTime);
         }
 

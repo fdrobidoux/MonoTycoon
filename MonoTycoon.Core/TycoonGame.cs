@@ -9,9 +9,13 @@ namespace MonoTycoon.Core
         
         public TycoonGame() : base()
         {
-            
+            Common.GameHelper.Inject(this);
         }
-        
-        
+
+        protected override void Initialize()
+        {
+            // Initialize systems.
+            base.Initialize();
+        }
     }
 }

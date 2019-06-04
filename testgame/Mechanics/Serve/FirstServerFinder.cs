@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoTycoon.Core;
 using MonoTycoon.Core.Common;
 using MonoTycoon.Core.Graphics;
-using MonoTycoon.Core.Physics;
+using Microsoft.Xna.Framework.Audio;
 using System;
 using testgame.Core;
 using testgame.Entities;
@@ -14,11 +14,6 @@ namespace testgame.Mechanics.Serve
     {
         private Ball TheBall;
         private Team currentTeam;
-        private bool isChoosing = true;
-
-        //private Vector2 ballPosition;
-        private float ballScale;
-        //private Rectangle lastRectangle;
 
         # region "Timers"
         public TimerTask timerSwitcharooDo;
@@ -27,12 +22,16 @@ namespace testgame.Mechanics.Serve
         public TimerTask timerEndScaling;
         #endregion
 
+        SoundEffect soundSwitchingBall;
+        
         public FirstServerFinder(Game game, Ball ball) : base(game)
         {
             TheBall = ball;
             timerSwitcharooDo = new TimerTask(alternateBallPosition, 33, true);
             timerEndSwitcharoo = new TimerTask(onEndSwitcharoo, int.MaxValue, false);
             timerEndScaling = new TimerTask(finalizeFindingFirstServer, TimeSpan.FromSeconds(2).TotalMilliseconds, false);
+
+            EnabledChanged += OnEnabledChanged;
         }
 
         public override void Initialize()
@@ -42,7 +41,6 @@ namespace testgame.Mechanics.Serve
             IMatch _match = Game.Services.GetService<IMatch>();
             _match.MatchStateChanges += onMatchStateChanges;
             
-            isChoosing = true;
             currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
 
             timerSwitcharooDo.Reset();
@@ -62,6 +60,12 @@ namespace testgame.Mechanics.Serve
             Visible = false;
         }
 
+        protected new void OnEnabledChanged(object sender, EventArgs args)
+        {
+            IMatch _match = Game.Services.GetService<IMatch>();
+            match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
+        }
+
         /// <summary>
         /// MATCH EVENTS
         /// </summary>
@@ -77,6 +81,10 @@ namespace testgame.Mechanics.Serve
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 Enabled = true;
                 Visible = true;
+            }
+            else if (e.Old == MatchState.InstanciatedRound)
+            {
+                match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
             }
         }
 
@@ -102,7 +110,9 @@ namespace testgame.Mechanics.Serve
         {
             timerSwitcharooDo.Update(gt);
             timerEndSwitcharoo.Update(gt);
-            timerEndScaling.Update(gt);
+            timerEndScaling.Update(gt); 
+            
+            
         }
 
         private void alternateBallPosition()
@@ -131,8 +141,6 @@ namespace testgame.Mechanics.Serve
         {
             Match match = (Match)Game.Services.GetService<IMatch>();
 
-            isChoosing = false;
-
             TheBall.Visible = true;
             TheBall.Transform.Scale = 1f;
 
@@ -149,8 +157,6 @@ namespace testgame.Mechanics.Serve
 
             // Set the round's state.
             match.CurrentRound.State = RoundState.WaitingForBallServe;
-
-            match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
         }
 
         private void calculateRectangle()
@@ -173,13 +179,12 @@ namespace testgame.Mechanics.Serve
         {
             if (timerEndScaling.Enabled)
                 TheBall.Transform.Scale = getBallScale();
-            //Game.GetSpriteBatch().Draw(TheBall.Sprite, lastRectangle, Color.White);
         }
 
         private float getBallScale()
         {
             float x = (float) TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
-            return MathF.Abs(MathF.Sin((5 * x) + 0.5f)) + 0.5f;
+            return MathF.Abs(MathF.Sin((6 * x) + 0.5f)) + 0.5f;
         }
     }
 }

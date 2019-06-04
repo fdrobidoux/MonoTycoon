@@ -9,10 +9,7 @@ namespace MonoTycoon.Core.Physics
 
         public Vector2 Location { get; set; }
         public Rotation2 Rotation { get; set; }
-        public float Scale { 
-            get; 
-            set; 
-        }
+        public float Scale { get; set; } = 1f;
         public Size2 Size { get; set; }
         public int ZIndex { get; set; } = 0;
 

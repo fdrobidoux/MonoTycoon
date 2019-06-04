@@ -25,19 +25,7 @@ namespace testgame.Entities
 
         public Ball(Game game) : base(game)
         {
-            VisibleChanged += FUCK;
-            EnabledChanged += SHIT;
             Transform = Transform2.Zero;
-        }
-
-        private void FUCK(object sender, EventArgs e)
-        {
-            Console.WriteLine("FUCK");
-        }
-
-        private void SHIT(object sender, EventArgs e)
-        {
-            Console.WriteLine("SHIT");
         }
 
         public override void Initialize()

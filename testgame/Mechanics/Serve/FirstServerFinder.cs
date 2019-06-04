@@ -73,13 +73,13 @@ namespace testgame.Mechanics.Serve
             if (!(sender is IMatch match))
                 return;
 
-            if (e.Modified == MatchState.InstanciatedRound)
+            if (e.Current == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 Enabled = true;
                 Visible = true;
             }
-            else if (e.Old == MatchState.InstanciatedRound)
+            else if (e.Previous == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
             }
@@ -92,7 +92,7 @@ namespace testgame.Mechanics.Serve
         /// <param name="e"></param>
         private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            if (e.Modified != RoundState.NotStarted)
+            if (e.Current != RoundState.NotStarted)
             {
                 Enabled = false;
                 Visible = false;
@@ -137,9 +137,6 @@ namespace testgame.Mechanics.Serve
         private void finalizeFindingFirstServer()
         {
             Match match = (Match)Game.Services.GetService<IMatch>();
-
-            TheBall.Visible = true;
-            TheBall.Transform.Scale = 1f;
 
             // Remove visibility.
             Visible = false;

@@ -52,6 +52,9 @@ namespace MonoTycoon.Core.Physics
                     uponArrivial();
             });
 
+        public static Size2 ToSize2(this Vector2 source) 
+            => new Size2((int) source.X, (int) source.Y);
+
         public static void Resolve()
         {
             var list = callbacks;

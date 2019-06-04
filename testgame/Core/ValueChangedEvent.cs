@@ -8,22 +8,22 @@ namespace testgame.Core
     {
         private DictionaryWithDefaults<KeyValuePair<T, T>, bool> _hasChangedDict;
         
-        public T Old { get; }
-        public T Modified { get; }
+        public T Previous { get; }
+        public T Current { get; }
 
         public ValueChangedEvent(T old, T modified)
         {
-            Old = old;
-            Modified = modified;
+            Previous = old;
+            Current = modified;
         }
 
         public bool HasChangedFrom(T old, T modified) 
             => Was(old) && IsNow(modified);
 
         public bool Was(T old) 
-            => Old.Equals(old);
+            => Previous.Equals(old);
 
         public bool IsNow(T modified) 
-            => Modified.Equals(modified);
+            => Current.Equals(modified);
     }
 }

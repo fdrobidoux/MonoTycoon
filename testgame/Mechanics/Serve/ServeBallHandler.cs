@@ -61,12 +61,12 @@ namespace testgame.Mechanics.Serve
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
                 Enabled = false;
+                var blah = new Vector2(-1f, 1f);
+                if (ServingPaddle.Team == Team.Blue)
+                    blah *= -1;
 
                 // Set velocity to Ball.
-                if (ServingPaddle.Team == Team.Blue)
-                    TheBall.Direction = Vector2.UnitX * -1;
-                else if (ServingPaddle.Team == Team.Red)
-                    TheBall.Direction = Vector2.UnitX;
+                TheBall.Direction = blah;
 
                 // Set round state to `InProgress`.
                 Game.Services.GetService<IMatch>().CurrentRound.State = RoundState.InProgress;
@@ -75,7 +75,7 @@ namespace testgame.Mechanics.Serve
             {
                 TheBall.Transform.Location = new Vector2(
                     x: TheBall.Transform.Location.X,
-                    y: ServingPaddle.Position.Y + (ServingPaddle.Size.Y / 2));
+                    y: ServingPaddle.Transform.Location.Y + (ServingPaddle.Transform.Size.Height / 2));
             }
         }
 

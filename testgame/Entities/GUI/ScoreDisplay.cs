@@ -33,7 +33,7 @@ namespace testgame.Entities.GUI
 
         private void onMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
         {
-            Enabled = (!e.Modified.Any(STATES_WHEN_DISABLED));
+            Enabled = (!e.Current.Any(STATES_WHEN_DISABLED));
         }
 
         public override void Update(GameTime gt)

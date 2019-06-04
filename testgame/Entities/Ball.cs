@@ -10,18 +10,14 @@ namespace testgame.Entities
 {
     public class Ball : DrawableGameComponent
     {
-        private const double STARTING_VELOCITY = 200;
+        private const double STARTING_VELOCITY = 150; // Pixels per second.
+
+        public Transform2 Transform { get; set; }
 
         public double Velocity = STARTING_VELOCITY;
         public Vector2 Direction = Vector2.UnitX;
 
-        public Transform2 Transform { get; set; }
-
         public Texture2D Sprite;
-
-#if DEBUG
-        public SpriteFont DebugFont { get; private set; }
-#endif
 
         public Ball(Game game) : base(game)
         {
@@ -39,7 +35,8 @@ namespace testgame.Entities
             _match.MatchStateChanges += OnMatchStateChanges;
 
             Velocity = STARTING_VELOCITY;
-            Direction = Vector2.UnitX;
+            //Direction = Vector2.UnitY;
+            Direction = new Vector2(0.35f, 0.65f);
 
             Enabled = false;
             Visible = false;
@@ -49,29 +46,33 @@ namespace testgame.Entities
         {
             if (sender is IMatch match)
             {
-                Visible = e.Modified.Any(MatchState.InstanciatedRound, MatchState.InProgress);
+                Visible = e.Current.Any(MatchState.InstanciatedRound, MatchState.InProgress);
 
-                if (e.Modified == MatchState.InstanciatedRound)
+                if (e.Current == MatchState.InstanciatedRound)
                     SetRoundEvents(match.CurrentRound);
             }
         }
 
         private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            Visible = !e.Modified.Equals(RoundState.NotStarted);
-            Enabled = e.Modified.Equals(RoundState.InProgress);
+            Visible = !e.Current.Equals(RoundState.NotStarted);
+            Enabled = e.Current.Equals(RoundState.InProgress);
 
-            if (e.Modified.Equals(RoundState.WaitingForBallServe))
+            if (e.Current.Equals(RoundState.WaitingForBallServe))
             {
-                Transform.Scale = 1f;
+                Transform.Scale = 1.5f;
+                Visible = true;
             }
         }
 
         private void SetRoundEvents(IRound round) => round.RoundStateChanges += OnRoundStateChanges;
-        //private void UnsetRoundEvents(IRound round) => round.RoundStateChanges -= OnRoundStateChanges;
+        private void UnsetRoundEvents(IRound round) => round.RoundStateChanges -= OnRoundStateChanges;
 
         public void Reset()
         {
+            // TODO: Implement reset method.
+            throw new NotImplementedException();
+
             /*Position = (GraphicsDevice.Viewport.Bounds.Center.ToVector2() / 2f) -
                        ((_baseSize / 2) * Transform.Scale);*/
         }
@@ -79,16 +80,50 @@ namespace testgame.Entities
         protected override void LoadContent()
         {
             Sprite = Game.Content.Load<Texture2D>("ball");
+            //DebugFont = Game.Content.Load<SpriteFont>("arial");
+        }
+
+        public override void Update(GameTime gt)
+        {
+            Transform.Location += Direction * (float)(Velocity * gt.ElapsedGameTime.TotalSeconds);
+
+            Bounce(gt, GraphicsDevice.Viewport.Bounds);
+
+            //ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
 #if DEBUG
-            DebugFont = Game.Content.Load<SpriteFont>("arial");
+            Console.WriteLine($"Transform {Transform.ToString()}");
 #endif
         }
 
-        public override void Update(GameTime gameTime)
+        private void Bounce(GameTime gt, Rectangle bounds)
         {
-            var totalGT = gameTime.ElapsedGameTime.TotalSeconds;
-            Transform.Location += Direction * (float)(STARTING_VELOCITY * totalGT);
-            ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
+            Transform.DeconstructScaledF(out Vector2 locationF, 
+                                         out Vector2 sizeF);
+            sizeF /= 2f;
+            var minLocationF = locationF - sizeF;
+
+            float diffX, diffY;
+
+            if ((diffX = minLocationF.X) <= 0f)
+            {
+                Direction *= new Vector2(-1f, 1f);
+                Transform -= new Vector2(diffX, 0f);
+            }
+            else if ((diffX = bounds.Right - (locationF + sizeF).X) <= 0f)
+            {
+                Direction *= new Vector2(-1f, 1f);
+                Transform += new Vector2(diffX, 0f);
+            }
+            if ((diffY = minLocationF.Y) <= 0f)
+            {
+                Direction *= new Vector2(1f, -1f);
+                Transform -= new Vector2(0f, diffY);
+            }
+            else if ((diffY = bounds.Bottom - (locationF + sizeF).Y) <= 0f)
+            {
+                Direction *= new Vector2(1f, -1f);
+                Transform += new Vector2(0f, diffY);
+            }
         }
 
         public void ConstrainWithinBounds(Rectangle viewBounds)
@@ -101,16 +136,21 @@ namespace testgame.Entities
             );
         }
 
+        private Rectangle centerDivide()
+        {
+            Rectangle rect = Transform.ToRectangle();
+            rect.Location -= rect.Size.DivideBy(2);
+            return rect;
+        }
+
         public override void Draw(GameTime gameTime)
         {
-            var rect = Transform.ToRectangle();
-            rect.Location = rect.Location - rect.Size.DivideBy(2);
-            Game.GetSpriteBatch().Draw(Sprite, rect, Color.White);
+            Game.GetSpriteBatch().Draw(Sprite, centerDivide(), Color.White);
 #if DEBUG
             var str = $"Transform {Transform.ToRectangle().ToString()}";
             //var position = new Vector2(x: Game.GraphicsDevice.Viewport.Width, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
             //Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Azure, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-            Console.WriteLine($"Transform {Transform.ToString()}");
+            Console.WriteLine("^ DRAWN ^");
 #endif 
         }
     }

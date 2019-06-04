@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoTycoon.Core;
+using MonoTycoon.Core.Physics;
 using testgame.Core;
 using testgame.Mechanics;
 
@@ -12,9 +13,7 @@ namespace testgame.Entities
 {
     public class Paddle : DrawableGameComponent
     {
-        public Vector2 Position = Vector2.Zero;
-        public Vector2 Size = new Vector2(50, 100);
-        public Rectangle Bounds => new Rectangle(Position.ToPoint(), Size.ToPoint());
+        public Transform2 Transform { get; set; }
 
         public Texture2D PaddleTexture;
         public Team Team;
@@ -22,6 +21,7 @@ namespace testgame.Entities
         public Paddle(Game game, Team team) : base(game)
         {
             Team = team;
+            Transform = Transform2.Zero;
         }
 
         public override void Initialize()
@@ -30,9 +30,12 @@ namespace testgame.Entities
 
             IMatch match = Game.Services.GetService<IMatch>();
             match.MatchStateChanges += OnMatchStateChanges;
+
             IRound round = match.CurrentRound;
             if (round != null)
                 round.RoundStateChanges += OnRoundStateChanges;
+
+            Transform.Size = new Size2(50, 100);
 
             float x;
             switch (Team)
@@ -41,13 +44,13 @@ namespace testgame.Entities
                     x = GraphicsDevice.Viewport.Bounds.Left;
                     break;
                 case Team.Red:
-                    x = GraphicsDevice.Viewport.Bounds.Right - Size.X;
+                    x = GraphicsDevice.Viewport.Bounds.Right - Transform.Size.Width;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(Team), Team, null);
             }
-
-            Position = new Vector2(x, (GraphicsDevice.Viewport.Height / 2f) - (Size.Y / 2f));
+            
+            Transform.Location = new Vector2(x, (GraphicsDevice.Viewport.Height) - (Transform.Size.Height) / 2f);
 
             Visible = true;
             Enabled = true;
@@ -59,7 +62,7 @@ namespace testgame.Entities
 
             //_moving = (e.Modified.Any(MatchState.InProgress, MatchState.DemoMode));
 
-            if (e.Modified == MatchState.InstanciatedRound)
+            if (e.Current == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
             }
@@ -67,12 +70,12 @@ namespace testgame.Entities
 
         private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
         {
-            if (e.Modified == RoundState.NotStarted)
+            if (e.Current == RoundState.NotStarted)
             {
                 Enabled = false;
                 Visible = false;
             }
-            else if (e.Modified == RoundState.WaitingForBallServe)
+            else if (e.Current == RoundState.WaitingForBallServe)
             {
                 Visible = true;
                 Enabled = true;
@@ -100,7 +103,10 @@ namespace testgame.Entities
 
         private void MoveWithMouse(GameTime gameTime)
         {
-            Position = new Vector2(Position.X, Mouse.GetState().Y - (Size.Y / 2f));
+            Transform.Location = new Vector2(
+                x: Transform.Location.X,
+                y: Mouse.GetState().Y - (Transform.Size.Height / 2)
+            );
         }
 
         private void MoveAI(GameTime gameTime)
@@ -110,16 +116,16 @@ namespace testgame.Entities
 
         public override void Draw(GameTime gameTime)
         {
-            Game.GetSpriteBatch().Draw(PaddleTexture, Bounds, Color.White);
+            Game.GetSpriteBatch().Draw(PaddleTexture, Transform.ToRectangle(), Color.White);
         }
 
         public void ConstrainWithinBounds(Rectangle viewBounds)
         {
             //Vector2 boundOpposite = (Size + Position);
 
-            Position = new Vector2(
-                Math.Clamp(Position.X, viewBounds.Left, viewBounds.Right - Size.X),
-                Math.Clamp(Position.Y, viewBounds.Top, viewBounds.Bottom - Size.Y)
+            Transform.Location = new Vector2(
+                Math.Clamp(Transform.Location.X, viewBounds.Left, viewBounds.Right - Transform.Size.Width),
+                Math.Clamp(Transform.Location.Y, viewBounds.Top, viewBounds.Bottom - Transform.Size.Height)
             );
 
             //if (Position.X < viewBounds.Left)

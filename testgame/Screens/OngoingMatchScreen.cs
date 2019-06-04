@@ -13,22 +13,20 @@ namespace testgame.Screens
 {
     public class OngoingMatchScreen : Screen
     {
+#if DEBUG
         private SpriteFont debugFont;
-
+#endif
         // Game Components
         private Paddle PlayerPaddle { get; set; }
         private Paddle AiPaddle { get; set; }
         private Ball Ball { get; set; }
         private ScoreDisplay ScoreDisplay { get; set; }
-        private FirstServerFinder FirstServerFinder { get; set; }
 
         private IMatch _match;
         private IRound _round => _match.CurrentRound;
 
         public ServeBallHandler ServeBallHandler { get; private set; }
-
-        // Always-active components.
-        // TODO: Add always-active components.
+        private FirstServerFinder FirstServerFinder { get; set; }
 
         public OngoingMatchScreen(Game game) : base(game)
         {
@@ -65,7 +63,7 @@ namespace testgame.Screens
             if (!(sender is IMatch match))
                 return;
 
-            if (e.Modified == MatchState.InstanciatedRound)
+            if (e.Current == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
             }
@@ -83,10 +81,14 @@ namespace testgame.Screens
             if (!(sender is IRound round))
                 return;
 
-            if (e.Modified.Equals(RoundState.WaitingForBallServe))
+            if (e.Current.Equals(RoundState.WaitingForBallServe))
             {
                 Paddle servingPaddle = Components.OfType<Paddle>().Where((x) => x.Team == round.ServingTeam).Single();
                 ServeBallHandler.AssignEntitiesNecessaryForServing(Ball, servingPaddle);
+            }
+            else if (e.Previous.Equals(RoundState.WaitingForBallServe))
+            {
+                ServeBallHandler.UnassignEntitiesNecessaryForServing();
             }
         }
 

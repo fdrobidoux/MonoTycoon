@@ -27,8 +27,8 @@ namespace testgame
         {
             graphics = new GraphicsDeviceManager(this)
             {
-                PreferredBackBufferWidth = 1024,
-                PreferredBackBufferHeight = 768
+                PreferredBackBufferWidth = 800,
+                PreferredBackBufferHeight = 600
             };
 
             Content.RootDirectory = "Content";

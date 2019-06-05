@@ -6,24 +6,24 @@ namespace testgame.Core
 {
     public class ValueChangedEvent<T> where T : struct, IConvertible 
     {
-        private DictionaryWithDefaults<KeyValuePair<T, T>, bool> _hasChangedDict;
+        //private DictionaryWithDefaults<KeyValuePair<T, T>, bool> _hasChangedDict;
         
         public T Previous { get; }
         public T Current { get; }
 
-        public ValueChangedEvent(T old, T modified)
+        public ValueChangedEvent(T prev, T curr)
         {
-            Previous = old;
-            Current = modified;
+            Previous = prev;
+            Current = curr;
         }
 
-        public bool HasChangedFrom(T old, T modified) 
-            => Was(old) && IsNow(modified);
+        public bool HasChangedFrom(T prev, T curr) 
+            => Was(prev) && IsNow(curr);
 
-        public bool Was(T old) 
-            => Previous.Equals(old);
+        public bool Was(T prev) 
+            => Previous.Equals(prev);
 
-        public bool IsNow(T modified) 
-            => Current.Equals(modified);
+        public bool IsNow(T curr) 
+            => Current.Equals(curr);
     }
 }

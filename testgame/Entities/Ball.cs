@@ -1,16 +1,18 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 using MonoTycoon.Core;
 using MonoTycoon.Core.Physics;
 using testgame.Core;
 using testgame.Mechanics;
+using System.Collections.Generic;
 
 namespace testgame.Entities
 {
     public class Ball : DrawableGameComponent
     {
-        private const double STARTING_VELOCITY = 150; // Pixels per second.
+        private const double STARTING_VELOCITY = 300; // Pixels per second.
 
         public Transform2 Transform { get; set; }
 
@@ -18,6 +20,10 @@ namespace testgame.Entities
         public Vector2 Direction = Vector2.UnitX;
 
         public Texture2D Sprite;
+
+        private SoundEffect sfx_WallHit;
+        private const string SFX_WALLHIT_BASE = "wall_hit_{0}";
+        private List<SoundEffect> sfxGroup_WallHit;
 
         public Ball(Game game) : base(game)
         {
@@ -60,7 +66,7 @@ namespace testgame.Entities
 
             if (e.Current.Equals(RoundState.WaitingForBallServe))
             {
-                Transform.Scale = 1.5f;
+                Transform.Scale = 1f;
                 Visible = true;
             }
         }
@@ -73,14 +79,19 @@ namespace testgame.Entities
             // TODO: Implement reset method.
             throw new NotImplementedException();
 
-            /*Position = (GraphicsDevice.Viewport.Bounds.Center.ToVector2() / 2f) -
-                       ((_baseSize / 2) * Transform.Scale);*/
+            
         }
 
         protected override void LoadContent()
         {
             Sprite = Game.Content.Load<Texture2D>("ball");
             //DebugFont = Game.Content.Load<SpriteFont>("arial");
+
+            sfxGroup_WallHit = new List<SoundEffect>();
+            for (int i = 1; i <= 3; i++)
+            {
+                sfxGroup_WallHit.Add(Game.Content.Load<SoundEffect>(string.Format(SFX_WALLHIT_BASE, i)));
+            }
         }
 
         public override void Update(GameTime gt)
@@ -89,7 +100,7 @@ namespace testgame.Entities
 
             Bounce(gt, GraphicsDevice.Viewport.Bounds);
 
-            //ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
+            ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
 #if DEBUG
             Console.WriteLine($"Transform {Transform.ToString()}");
 #endif
@@ -124,6 +135,11 @@ namespace testgame.Entities
                 Direction *= new Vector2(1f, -1f);
                 Transform += new Vector2(0f, diffY);
             }
+
+            if (diffY <= 0f || diffX <= 0f)
+            {
+                sfxGroup_WallHit[new Random().Next(0, sfxGroup_WallHit.Count)].CreateInstance().Play();
+            }
         }
 
         public void ConstrainWithinBounds(Rectangle viewBounds)
@@ -146,12 +162,10 @@ namespace testgame.Entities
         public override void Draw(GameTime gameTime)
         {
             Game.GetSpriteBatch().Draw(Sprite, centerDivide(), Color.White);
-#if DEBUG
-            var str = $"Transform {Transform.ToRectangle().ToString()}";
+            //var str = $"Transform {Transform.ToRectangle().ToString()}";
             //var position = new Vector2(x: Game.GraphicsDevice.Viewport.Width, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
             //Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Azure, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-            Console.WriteLine("^ DRAWN ^");
-#endif 
+            //Console.WriteLine("^ DRAWN ^");
         }
     }
 }

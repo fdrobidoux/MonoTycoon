@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using MonoTycoon.Core.Screens;
 using testgame.Core;
 using testgame.Entities;
@@ -28,6 +29,8 @@ namespace testgame.Screens
         public ServeBallHandler ServeBallHandler { get; private set; }
         private FirstServerFinder FirstServerFinder { get; set; }
 
+        private Song music;
+
         public OngoingMatchScreen(Game game) : base(game)
         {
             Translucent = false;
@@ -51,6 +54,7 @@ namespace testgame.Screens
         protected override void LoadContent()
         {
             debugFont = Game.Content.Load<SpriteFont>("Arial");
+            music = Game.Content.Load<Song>("music");
         }
 
         /// <summary>
@@ -66,9 +70,9 @@ namespace testgame.Screens
             if (e.Current == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
+                MediaPlayer.Volume = 0.5f;
+                MediaPlayer.Play(music);
             }
-
-
         }
 
         /// <summary>

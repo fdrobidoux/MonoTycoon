@@ -6,7 +6,6 @@ using MonoTycoon.Core.Screens;
 using testgame.Core;
 using testgame.Mechanics;
 using testgame.Screens;
-using testgame.Entities.GUI;
 
 namespace testgame
 {

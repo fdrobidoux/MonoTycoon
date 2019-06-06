@@ -1,8 +1,8 @@
 
 #----------------------------- Global Properties ----------------------------#
 
-/outputDir:bin/$(Platform)
-/intermediateDir:obj/$(Platform)
+/outputDir:bin/yo/$(Platform)
+/intermediateDir:obj/yo/$(Platform)
 /platform:DesktopGL
 /config:
 /profile:HiDef
@@ -36,121 +36,73 @@
 #begin sfx/ai_scores.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/ai_scores.wav
 
 #begin sfx/ai_wins.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/ai_wins.wav
 
 #begin sfx/blue_hit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/blue_hit.wav
-
-#begin sfx/blue_hit.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/blue_hit.wav
-
-#begin sfx/Default.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/Default.wav
 
 #begin sfx/firstserver_chosen.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/firstserver_chosen.wav
-
-#begin sfx/firstserver_chosen.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/firstserver_chosen.wav
 
 #begin sfx/firstserver_switch.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/firstserver_switch.wav
-
-#begin sfx/firstserver_switch.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/firstserver_switch.wav
 
 #begin sfx/player_scores.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/player_scores.wav
 
 #begin sfx/player_win.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/player_win.wav
 
 #begin sfx/pressed_start.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/pressed_start.wav
 
 #begin sfx/red_hit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/red_hit.wav
-
-#begin sfx/red_hit.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/red_hit.wav
 
 #begin sfx/wall_hit_1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/wall_hit_1.wav
-
-#begin sfx/wall_hit_1.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/wall_hit_1.wav
 
 #begin sfx/wall_hit_2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/wall_hit_2.wav
-
-#begin sfx/wall_hit_2.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/wall_hit_2.wav
 
 #begin sfx/wall_hit_3.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sfx/wall_hit_3.wav
-
-#begin sfx/wall_hit_3.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
+/processorParam:Quality=Low
 /build:sfx/wall_hit_3.wav
 
 #begin textures/ball.png

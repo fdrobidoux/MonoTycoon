@@ -3,11 +3,11 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoTycoon.Core.Screens;
-using testgame.Core;
-using testgame.Mechanics;
-using testgame.Screens;
+using Pong.Entities;
+using Pong.Mechanics;
+using Pong.Screens;
 
-namespace testgame
+namespace Pong
 {
     public class Game1 : MonoTycoon.Core.TycoonGame
     {
@@ -41,6 +41,9 @@ namespace testgame
             ScreenManager = new ScreenManager(this, ongoingMatchScreen = new OngoingMatchScreen(this));
             Services.AddService<IScreenManager>(ScreenManager);
             Components.Add(ScreenManager);
+
+            ColoredBlock block = new ColoredBlock(this);
+            Components.Add(block);
         }
 
         protected override void Initialize()
@@ -55,7 +58,6 @@ namespace testgame
 
         protected override void LoadContent()
         {
-            // Sprite batch.
             Services.AddService(SpriteBatch = new SpriteBatch(graphics.GraphicsDevice));
         }
 

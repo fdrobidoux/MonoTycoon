@@ -4,10 +4,10 @@ using MonoTycoon.Core.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using testgame.Core;
-using testgame.Entities;
+using Pong.Core;
+using Pong.Entities;
 
-namespace testgame.Mechanics.Serve
+namespace Pong.Mechanics.Serve
 {
     public class ServeBallHandler : GameComponent
     {
@@ -40,12 +40,12 @@ namespace testgame.Mechanics.Serve
             canServe = false;
         }
 
-        private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        private void OnMatchStateChanges(object sender, MatchState previous)
         {
             if (!(sender is IMatch match))
                 return;
 
-            if (e.IsNow(MatchState.InstanciatedRound))
+            if (match.State == MatchState.InstanciatedRound)
                 match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
         }
 
@@ -74,8 +74,8 @@ namespace testgame.Mechanics.Serve
             else
             {
                 TheBall.Transform.Location = new Vector2(
-                    x: TheBall.Transform.Location.X,
-                    y: ServingPaddle.Transform.Location.Y + (ServingPaddle.Transform.Size.Height / 2));
+                    TheBall.Transform.Location.X, 
+                    ServingPaddle.Transform.Location.Y + (ServingPaddle.Transform.Size.Height / 2));
             }
         }
 

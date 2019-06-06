@@ -1,17 +1,26 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MonoTycoon.Core.Physics
 {
+    public delegate Vector2 Offsetify(Vector2 cOffset, Vector2 clocation);
+
     public class Transform2
     {
+        private List<Tuple<object, Offsetify>> offsetCallbacks;
+
         public static Transform2 Zero = new Transform2(Vector2.Zero, Size2.Zero);
 
         public Vector2 Location { get; set; }
+        public Vector2 Offset { get; set; } = Vector2.Zero;
         public Rotation2 Rotation { get; set; }
         public float Scale { get; set; } = 1f;
         public Size2 Size { get; set; }
         public int ZIndex { get; set; } = 0;
+
+        #region "Constructors"
 
         public Transform2(Rectangle rectangle)
             : this(new Vector2(rectangle.Location.X, rectangle.Location.Y), new Size2(rectangle.Size.X, rectangle.Size.Y)) { }
@@ -50,7 +59,39 @@ namespace MonoTycoon.Core.Physics
             Size = size;
             Scale = scale;
             ZIndex = zIndex;
+            offsetCallbacks = new List<Tuple<object, Offsetify>>();
         }
+
+        #endregion
+
+        #region "Offset Callbacks"
+
+        public void AddOffsetifier(object owner, Offsetify offsetifier)
+        {
+            offsetCallbacks.Add(new Tuple<object, Offsetify>(owner, offsetifier));
+        }
+
+        public void RemoveOffsetifiersBy(object owner)
+        {
+            offsetCallbacks.RemoveAll(kpv => kpv.Item1.Equals(owner));
+        }
+        
+        public void ClearOffsetifiers()
+        {
+            offsetCallbacks.Clear();
+        }
+
+        public Vector2 accumulateLocationOffsets()
+        {
+            Vector2 offset = Location;
+            foreach (Offsetify offsetifier in offsetCallbacks.Select(c => c.Item2).ToList<Offsetify>())
+            {
+                offset += offsetifier(offset, Location);
+            }
+            return offset;
+        }
+
+        #endregion
 
         public bool Intersects(Point point)
             => ToRectangle().Contains(point);
@@ -84,6 +125,8 @@ namespace MonoTycoon.Core.Physics
             return $"{Location} {Size} {Rotation} {Scale.ToString("F4")} {ZIndex}";
         }
 
+        #region "Operator methods"
+
         public static Transform2 operator +(Transform2 t1, Transform2 t2)
         {
             return new Transform2(t1.Location + t2.Location, t1.Rotation + t2.Rotation, t1.Size + t2.Size, t1.Scale * t2.Scale, t1.ZIndex);
@@ -104,6 +147,8 @@ namespace MonoTycoon.Core.Physics
 
         public static Transform2 operator -(Vector2 by, Transform2 t1)
             => new Transform2(by - t1.Location, t1.Rotation, t1.Size, t1.Scale, t1.ZIndex);
+
+        #endregion
 
         public Transform2 ToScale(float scale)
         {

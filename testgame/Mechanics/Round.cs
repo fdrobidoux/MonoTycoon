@@ -3,9 +3,9 @@ using System.Diagnostics.SymbolStore;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using testgame.Core;
+using Pong.Core;
 
-namespace testgame.Mechanics
+namespace Pong.Mechanics
 {
     public class Round : GameComponent, IRound
     {

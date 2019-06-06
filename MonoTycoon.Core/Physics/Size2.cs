@@ -59,5 +59,15 @@ namespace MonoTycoon.Core.Physics
         {
             return size * scale;
         }
+
+        public static Size2 operator -(Point point, Size2 size)
+        {
+            return new Size2(point.X - size.Width, point.Y - size.Height);
+        }
+
+        public static Size2 operator -(Size2 size, Point point)
+        {
+            return new Size2(size.Width - point.X, size.Height - point.Y);
+        }
     }
 }

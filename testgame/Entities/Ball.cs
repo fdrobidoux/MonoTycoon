@@ -4,11 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using MonoTycoon.Core;
 using MonoTycoon.Core.Physics;
-using testgame.Core;
-using testgame.Mechanics;
+using Pong.Core;
+using Pong.Mechanics;
 using System.Collections.Generic;
 
-namespace testgame.Entities
+namespace Pong.Entities
 {
     public class Ball : DrawableGameComponent
     {
@@ -21,7 +21,8 @@ namespace testgame.Entities
 
         public Texture2D Sprite;
 
-        private SoundEffect sfx_WallHit;
+        public SpriteFont DebugFont { get; private set; }
+
         private const string SFX_WALLHIT_BASE = "wall_hit_{0}";
         private List<SoundEffect> sfxGroup_WallHit;
 
@@ -41,20 +42,19 @@ namespace testgame.Entities
             _match.MatchStateChanges += OnMatchStateChanges;
 
             Velocity = STARTING_VELOCITY;
-            //Direction = Vector2.UnitY;
             Direction = new Vector2(0.35f, 0.65f);
 
             Enabled = false;
             Visible = false;
         }
 
-        private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        private void OnMatchStateChanges(object sender, MatchState previous)
         {
             if (sender is IMatch match)
             {
-                Visible = e.Current.Any(MatchState.InstanciatedRound, MatchState.InProgress);
+                Visible = match.State.Any(MatchState.InstanciatedRound, MatchState.InProgress);
 
-                if (e.Current == MatchState.InstanciatedRound)
+                if (match.State == MatchState.InstanciatedRound)
                     SetRoundEvents(match.CurrentRound);
             }
         }
@@ -79,13 +79,13 @@ namespace testgame.Entities
             // TODO: Implement reset method.
             throw new NotImplementedException();
 
-            
+
         }
 
         protected override void LoadContent()
         {
             Sprite = Game.Content.Load<Texture2D>("ball");
-            //DebugFont = Game.Content.Load<SpriteFont>("arial");
+            DebugFont = Game.Content.Load<SpriteFont>("Arial");
 
             sfxGroup_WallHit = new List<SoundEffect>();
             for (int i = 1; i <= 3; i++)
@@ -100,16 +100,15 @@ namespace testgame.Entities
 
             Bounce(gt, GraphicsDevice.Viewport.Bounds);
 
-            ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
-#if DEBUG
+            //ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
+#if _DEBUG
             Console.WriteLine($"Transform {Transform.ToString()}");
 #endif
         }
 
         private void Bounce(GameTime gt, Rectangle bounds)
         {
-            Transform.DeconstructScaledF(out Vector2 locationF, 
-                                         out Vector2 sizeF);
+            Transform.DeconstructScaledF(out Vector2 locationF, out Vector2 sizeF);
             sizeF /= 2f;
             var minLocationF = locationF - sizeF;
 
@@ -162,10 +161,11 @@ namespace testgame.Entities
         public override void Draw(GameTime gameTime)
         {
             Game.GetSpriteBatch().Draw(Sprite, centerDivide(), Color.White);
-            //var str = $"Transform {Transform.ToRectangle().ToString()}";
-            //var position = new Vector2(x: Game.GraphicsDevice.Viewport.Width, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
-            //Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Azure, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-            //Console.WriteLine("^ DRAWN ^");
+#if DEBUG
+            var str = $"Transform {Transform.ToRectangle().ToString()}";
+            var position = new Vector2(x: 0, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
+            Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Blue, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+#endif
         }
     }
 }

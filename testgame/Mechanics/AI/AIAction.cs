@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace testgame.Mechanics.AI
+namespace Pong.Mechanics.AI
 {
     public enum AIAction
     {

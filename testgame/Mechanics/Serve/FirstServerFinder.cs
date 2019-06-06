@@ -5,10 +5,10 @@ using MonoTycoon.Core.Common;
 using MonoTycoon.Core.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using System;
-using testgame.Core;
-using testgame.Entities;
+using Pong.Core;
+using Pong.Entities;
 
-namespace testgame.Mechanics.Serve
+namespace Pong.Mechanics.Serve
 {
     public class FirstServerFinder : DrawableGameComponent
     {
@@ -45,11 +45,9 @@ namespace testgame.Mechanics.Serve
             currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
 
             timerSwitcharooDo.Reset(modEnabled: true);
-
-            timerEndSwitcharoo.Reset(modEnabled: true);
+            timerEndSwitcharoo.Reset(true);
             timerEndSwitcharoo.IntervalMs = TimeSpan.FromMilliseconds(new Random().Next(2000, 3001)).TotalMilliseconds;
-
-            timerEndScaling.Reset(modEnabled: false);
+            timerEndScaling.Reset(false);
 
             TheBall.Transform.Scale = 1f;
 
@@ -68,18 +66,18 @@ namespace testgame.Mechanics.Serve
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void onMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        private void onMatchStateChanges(object sender, MatchState previous)
         {
             if (!(sender is IMatch match))
                 return;
 
-            if (e.Current == MatchState.InstanciatedRound)
+            if (match.State == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 Enabled = true;
                 Visible = true;
             }
-            else if (e.Previous == MatchState.InstanciatedRound)
+            else if (previous == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
             }

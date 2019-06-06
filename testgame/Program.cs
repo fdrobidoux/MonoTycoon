@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace testgame
+namespace Pong
 {
     public static class Program
     {

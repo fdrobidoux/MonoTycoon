@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MonoTycoon.Core.Common;
 
-namespace testgame.Core
+namespace Pong.Core
 {
     public class ValueChangedEvent<T> where T : struct, IConvertible 
     {

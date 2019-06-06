@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using MonoTycoon.Core.Graphics;
 using System;
 
-namespace testgame.Mechanics
+namespace Pong.Mechanics
 {
     public enum Team
     {

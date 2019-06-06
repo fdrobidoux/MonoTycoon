@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace testgame.SubRoutines
+namespace Pong.SubRoutines
 {
     public class MathFunction
     {

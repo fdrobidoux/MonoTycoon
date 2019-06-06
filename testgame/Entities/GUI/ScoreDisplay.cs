@@ -1,11 +1,11 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using testgame.Mechanics;
+using Pong.Mechanics;
 using MonoTycoon.Core.Graphics;
-using testgame.Core;
+using Pong.Core;
 
-namespace testgame.Entities.GUI
+namespace Pong.Entities.GUI
 {
     public class ScoreDisplay : DrawableGameComponent
     {
@@ -30,10 +30,13 @@ namespace testgame.Entities.GUI
         }
 
         private readonly MatchState[] STATES_WHEN_DISABLED = { MatchState.NotStarted, MatchState.DemoMode };
-
-        private void onMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        
+        private void onMatchStateChanges(object sender, MatchState previous)
         {
-            Enabled = (!e.Current.Any(STATES_WHEN_DISABLED));
+            if (!(sender is IMatch match))
+                return; 
+            
+            Enabled = (!match.State.Any(STATES_WHEN_DISABLED));
         }
 
         public override void Update(GameTime gt)

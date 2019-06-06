@@ -3,10 +3,10 @@ using MonoTycoon.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using testgame.Entities;
-using testgame.Mechanics.AI;
+using Pong.Entities;
+using Pong.Mechanics.AI;
 
-namespace testgame.Components
+namespace Pong.Components
 {
     public class AIController : GameComponent
     {

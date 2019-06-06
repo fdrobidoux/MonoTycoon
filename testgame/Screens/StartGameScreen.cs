@@ -4,10 +4,9 @@ using Microsoft.Xna.Framework.Input;
 using MonoTycoon.Core.Screens;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using testgame.Mechanics;
+using Pong.Mechanics;
 
-namespace testgame.Screens
+namespace Pong.Screens
 {
     class StartGameScreen : Screen
     {

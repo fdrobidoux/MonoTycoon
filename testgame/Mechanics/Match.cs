@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using testgame.Core;
+using Pong.Core;
 
-namespace testgame.Mechanics
+namespace Pong.Mechanics
 {
     public class Match : GameComponent, IMatch
     {
@@ -21,9 +21,9 @@ namespace testgame.Mechanics
             set
             {
                 if (value == _state) return;
-                MatchState old = _state;
+                MatchState previous = _state;
                 _state = value;
-                MatchStateChanges?.Invoke(this, new ValueChangedEvent<MatchState>(old, _state));
+                MatchStateChanges?.Invoke(this, previous);
             }
         }
         public int ScoreBlue
@@ -56,7 +56,7 @@ namespace testgame.Mechanics
         IRound IMatch.CurrentRound => CurrentRound;
 
         public event EventHandler<Team> TeamScores;
-        public event EventHandler<ValueChangedEvent<MatchState>> MatchStateChanges;
+        public event EventHandler<MatchState> MatchStateChanges;
 
         public Match(Game game, MatchState? startingState) : base(game)
         {
@@ -110,7 +110,7 @@ namespace testgame.Mechanics
             return CurrentRound;
         }
 
-        private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        private void OnMatchStateChanges(object sender, MatchState previous)
         {
             
         }
@@ -126,7 +126,7 @@ namespace testgame.Mechanics
         IRound CurrentRound { get; }
         
         event EventHandler<Team> TeamScores;
-        event EventHandler<ValueChangedEvent<MatchState>> MatchStateChanges;
+        event EventHandler<MatchState> MatchStateChanges;
 
         void AddOnePointTo(Team team);
         int GetScore(Team team);

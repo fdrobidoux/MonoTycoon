@@ -4,13 +4,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using MonoTycoon.Core.Screens;
-using testgame.Core;
-using testgame.Entities;
-using testgame.Entities.GUI;
-using testgame.Mechanics;
-using testgame.Mechanics.Serve;
+using Pong.Core;
+using Pong.Entities;
+using Pong.Entities.GUI;
+using Pong.Mechanics;
+using Pong.Mechanics.Serve;
 
-namespace testgame.Screens
+namespace Pong.Screens
 {
     public class OngoingMatchScreen : Screen
     {
@@ -21,13 +21,13 @@ namespace testgame.Screens
         private Paddle PlayerPaddle { get; set; }
         private Paddle AiPaddle { get; set; }
         private Ball Ball { get; set; }
-        private ScoreDisplay ScoreDisplay { get; set; }
+        //private ScoreDisplay ScoreDisplay { get; set; }
 
         private IMatch _match;
         private IRound _round => _match.CurrentRound;
 
         public ServeBallHandler ServeBallHandler { get; private set; }
-        private FirstServerFinder FirstServerFinder { get; set; }
+        //private FirstServerFinder FirstServerFinder { get; set; }
 
         private Song music;
 
@@ -38,8 +38,8 @@ namespace testgame.Screens
             Components.Add(Ball = new Ball(game));
             Components.Add(AiPaddle = new Paddle(game, Team.Red));
             Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
-            Components.Add(ScoreDisplay = new ScoreDisplay(game));
-            Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
+            Components.Add(/*ScoreDisplay =*/ new ScoreDisplay(game));
+            Components.Add(/*FirstServerFinder =*/ new FirstServerFinder(Game, Ball));
             Components.Add(ServeBallHandler = new ServeBallHandler(Game));
         }
 
@@ -48,12 +48,16 @@ namespace testgame.Screens
             _match = Game.Services.GetService<IMatch>();
             _match.MatchStateChanges += onMatchStateChanges;
 
+            GameComponentCollection coll = new GameComponentCollection();
+
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
+#if DEBUG
             debugFont = Game.Content.Load<SpriteFont>("Arial");
+#endif
             music = Game.Content.Load<Song>("music");
         }
 
@@ -62,12 +66,12 @@ namespace testgame.Screens
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void onMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        private void onMatchStateChanges(object sender, MatchState previous)
         {
             if (!(sender is IMatch match))
                 return;
 
-            if (e.Current == MatchState.InstanciatedRound)
+            if (match.State == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 MediaPlayer.Volume = 0.5f;

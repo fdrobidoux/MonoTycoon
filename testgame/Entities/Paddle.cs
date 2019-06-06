@@ -6,10 +6,10 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoTycoon.Core;
 using MonoTycoon.Core.Physics;
-using testgame.Core;
-using testgame.Mechanics;
+using Pong.Core;
+using Pong.Mechanics;
 
-namespace testgame.Entities
+namespace Pong.Entities
 {
     public class Paddle : DrawableGameComponent
     {
@@ -56,13 +56,14 @@ namespace testgame.Entities
             Enabled = true;
         }
 
-        private void OnMatchStateChanges(object sender, ValueChangedEvent<MatchState> e)
+        private void OnMatchStateChanges(object sender, MatchState previous)
         {
-            IMatch match = (IMatch)sender;
+            if (!(sender is IMatch match))
+                return;
 
             //_moving = (e.Modified.Any(MatchState.InProgress, MatchState.DemoMode));
 
-            if (e.Current == MatchState.InstanciatedRound)
+            if (match.State  == MatchState.InstanciatedRound)
             {
                 match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
             }

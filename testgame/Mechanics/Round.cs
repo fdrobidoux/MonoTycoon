@@ -9,7 +9,7 @@ namespace Pong.Mechanics
 {
     public class Round : GameComponent, IRound
     {
-        private RoundState _state;
+        RoundState _state;
         public RoundState State
         {
             get => _state;
@@ -18,12 +18,12 @@ namespace Pong.Mechanics
                 if (value == _state) return;
                 RoundState old = _state;
                 _state = value;
-                RoundStateChanges?.Invoke(this, new ValueChangedEvent<RoundState>(old, value));
+                RoundStateChanges?.Invoke(this, old);
             }
         }
         public ushort Number { get; set; }
         public Team ServingTeam { get; set; }
-        public event EventHandler<ValueChangedEvent<RoundState>> RoundStateChanges;
+        public event EventHandler<RoundState> RoundStateChanges;
         
         /// <summary>
         /// Constructor.
@@ -40,10 +40,10 @@ namespace Pong.Mechanics
 
         public override void Initialize()
         {
-            RoundStateChanges += OnRoundStateChanges;
+            RoundStateChanges += StateChanged;
         }
 
-        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        void StateChanged(object sender, RoundState previous)
         {
             
         }
@@ -60,7 +60,7 @@ namespace Pong.Mechanics
         RoundState State { get; set; }
         ushort Number { get; }
         Team ServingTeam { get; set; }
-        event EventHandler<ValueChangedEvent<RoundState>> RoundStateChanges;
+        event EventHandler<RoundState> RoundStateChanges;
     }
 
     public enum RoundState : byte

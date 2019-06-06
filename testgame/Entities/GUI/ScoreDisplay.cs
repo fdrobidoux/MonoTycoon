@@ -26,7 +26,7 @@ namespace Pong.Entities.GUI
 
         protected override void LoadContent()
         {
-            _font = Game.Content.Load<SpriteFont>("Arial");
+            _font = Game.Content.Load<SpriteFont>("fonts/Arial");
         }
 
         private readonly MatchState[] STATES_WHEN_DISABLED = { MatchState.NotStarted, MatchState.DemoMode };

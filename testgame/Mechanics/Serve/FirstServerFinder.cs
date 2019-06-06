@@ -57,8 +57,8 @@ namespace Pong.Mechanics.Serve
 
         protected override void LoadContent()
         {
-            sfx_Switch = Game.Content.Load<SoundEffect>("firstserver_switch");
-            sfx_Chosen = Game.Content.Load<SoundEffect>("firstserver_chosen");
+            sfx_Switch = Game.Content.Load<SoundEffect>("sfx/firstserver_switch");
+            sfx_Chosen = Game.Content.Load<SoundEffect>("sfx/firstserver_chosen");
         }
 
         /// <summary>

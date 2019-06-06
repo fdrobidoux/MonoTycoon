@@ -84,8 +84,8 @@ namespace Pong.Entities
 
         protected override void LoadContent()
         {
-            Sprite = Game.Content.Load<Texture2D>("ball");
-            DebugFont = Game.Content.Load<SpriteFont>("Arial");
+            Sprite = Game.Content.Load<Texture2D>("textures/ball");
+            DebugFont = Game.Content.Load<SpriteFont>("fonts/Arial");
 
             sfxGroup_WallHit = new List<SoundEffect>();
             for (int i = 1; i <= 3; i++)

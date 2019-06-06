@@ -27,7 +27,7 @@ namespace Pong.Screens
 
         protected override void LoadContent()
         {
-            _textFont = Game.Content.Load<SpriteFont>("Arial");
+            _textFont = Game.Content.Load<SpriteFont>("fonts/Arial");
             base.LoadContent();
         }
 

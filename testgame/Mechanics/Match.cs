@@ -11,10 +11,7 @@ namespace Pong.Mechanics
 {
     public class Match : GameComponent, IMatch
     {
-        private int _scoreBlue;
-        private int _scoreRed;
-        private MatchState _state;
-
+        MatchState _state;
         public MatchState State
         {
             get => _state;
@@ -26,6 +23,8 @@ namespace Pong.Mechanics
                 MatchStateChanges?.Invoke(this, previous);
             }
         }
+
+        int _scoreBlue;
         public int ScoreBlue
         {
             get => _scoreBlue;
@@ -39,6 +38,8 @@ namespace Pong.Mechanics
                 TeamScores?.Invoke(this, Team.Blue);
             }
         }
+
+        int _scoreRed;
         public int ScoreRed
         {
             get => _scoreRed;
@@ -58,9 +59,8 @@ namespace Pong.Mechanics
         public event EventHandler<Team> TeamScores;
         public event EventHandler<MatchState> MatchStateChanges;
 
-        public Match(Game game, MatchState? startingState) : base(game)
+        public Match(Game game) : base(game)
         {
-            State = startingState ?? MatchState.DemoMode;
         }
 
         public override void Initialize()
@@ -110,7 +110,7 @@ namespace Pong.Mechanics
             return CurrentRound;
         }
 
-        private void OnMatchStateChanges(object sender, MatchState previous)
+        void OnMatchStateChanges(object sender, MatchState previous)
         {
             
         }
@@ -170,8 +170,5 @@ namespace Pong.Mechanics
         /// </summary>
         public static bool None(this MatchState thisMatchState, params MatchState[] statesToAvoid) 
             => statesToAvoid.All(state => thisMatchState != state);
-
-        //public static bool All(this MatchState thisMatchState, params MatchState[] statesThatAllNeedToMatch) 
-        //    => statesThatAllNeedToMatch.All(state => thisMatchState == state);
     }
 }

@@ -27,6 +27,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Content\textures\" />
+      <Folder Include="Content\obj\" />
       <Folder Include="Graphics\" />
     </ItemGroup>
 

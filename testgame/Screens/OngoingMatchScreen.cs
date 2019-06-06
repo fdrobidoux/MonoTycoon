@@ -12,22 +12,22 @@ using Pong.Mechanics.Serve;
 
 namespace Pong.Screens
 {
-    public class OngoingMatchScreen : Screen
+    public class OngoingMatchScreen : Screen, IMatchStateSensitive, IRoundStateSensitive
     {
 #if DEBUG
         private SpriteFont debugFont;
 #endif
         // Game Components
-        private Paddle PlayerPaddle { get; set; }
-        private Paddle AiPaddle { get; set; }
-        private Ball Ball { get; set; }
-        //private ScoreDisplay ScoreDisplay { get; set; }
+        Paddle PlayerPaddle { get; set; }
+        Paddle AiPaddle { get; set; }
+        Ball Ball { get; set; }
+        ScoreDisplay ScoreDisplay { get; set; }
 
-        private IMatch _match;
-        private IRound _round => _match.CurrentRound;
+        IMatch _match;
+        IRound _round => _match.CurrentRound;
 
         public ServeBallHandler ServeBallHandler { get; private set; }
-        //private FirstServerFinder FirstServerFinder { get; set; }
+        private FirstServerFinder FirstServerFinder { get; set; }
 
         private Song music;
 
@@ -38,15 +38,14 @@ namespace Pong.Screens
             Components.Add(Ball = new Ball(game));
             Components.Add(AiPaddle = new Paddle(game, Team.Red));
             Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
-            Components.Add(/*ScoreDisplay =*/ new ScoreDisplay(game));
-            Components.Add(/*FirstServerFinder =*/ new FirstServerFinder(Game, Ball));
+            Components.Add(ScoreDisplay = new ScoreDisplay(game));
+            Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
             Components.Add(ServeBallHandler = new ServeBallHandler(Game));
         }
 
         public override void Initialize()
         {
-            _match = Game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += onMatchStateChanges;
+            //_match = Game.Services.GetService<IMatch>();
 
             GameComponentCollection coll = new GameComponentCollection();
 
@@ -56,24 +55,22 @@ namespace Pong.Screens
         protected override void LoadContent()
         {
 #if DEBUG
-            debugFont = Game.Content.Load<SpriteFont>("Arial");
+            debugFont = Game.Content.Load<SpriteFont>("fonts/Arial");
 #endif
-            music = Game.Content.Load<Song>("music");
+            music = Game.Content.Load<Song>("music/ingame");
         }
+
 
         /// <summary>
         /// MATCH EVENTS
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void onMatchStateChanges(object sender, MatchState previous)
+        public void Match_StateChanged(IMatch match, MatchState previous)
         {
-            if (!(sender is IMatch match))
-                return;
-
             if (match.State == MatchState.InstanciatedRound)
             {
-                match.CurrentRound.RoundStateChanges += onRoundStateChanges;
+                //match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 MediaPlayer.Volume = 0.5f;
                 MediaPlayer.Play(music);
             }

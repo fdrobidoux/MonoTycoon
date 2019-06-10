@@ -26,9 +26,6 @@ namespace Pong.Entities
         {
             base.Initialize();
 
-            IMatch match = Game.Services.GetService<IMatch>();
-            match.MatchStateChanges += Match_MatchStateChanges; ;
-
             velocity = 50;
             var direction = new Vector2(-20, 50);
             direction.Normalize();

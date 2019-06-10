@@ -5,6 +5,7 @@ using MonoTycoon.Core.Screens;
 using System;
 using System.Collections.Generic;
 using Pong.Mechanics;
+using Pong.Mechanics.States;
 
 namespace Pong.Screens
 {
@@ -31,15 +32,21 @@ namespace Pong.Screens
             base.LoadContent();
         }
 
-        public override void Update(GameTime gameTime)
+		public void StateChanged(IMatch match, MatchState previous)
+		{
+
+		}
+
+		public override void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Enter))
             {
                 if (Manager.ActiveScreen == this)
                 {
                     Manager.Pop();
-                    _match.StartNewRound();
-                    this.Dispose();
+					Game.Services.GetService<IMatch>()
+						?.StartNewRound();
+                    Enabled = false;
                 }
             }
         }
@@ -58,5 +65,6 @@ namespace Pong.Screens
         {
             base.Dispose(disposing);
         }
-    }
+
+	}
 }

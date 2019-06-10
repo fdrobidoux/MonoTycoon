@@ -7,6 +7,7 @@
         <StartupObject>Pong.Program</StartupObject>
         <Win32Resource />
         <SignAssembly>false</SignAssembly>
+        <Configurations>Debug;Release;DesktopGL</Configurations>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,7 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <MonoGameContentReference Include="**\*.mgcb" />
+        <MonoGameContentReference Include="..\Assets\*.mgcb" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,8 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Content\textures\" />
-      <Folder Include="Content\obj\" />
+      <Folder Include="Content\" Exclude="Content\obj;Content\bin;" />
       <Folder Include="Graphics\" />
     </ItemGroup>
 

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <ApplicationIcon />
+    <Configurations>Debug;Release;DesktopGL</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

@@ -29,11 +29,11 @@ namespace Pong.Entities
             base.Initialize(); // Will call `LoadContent()`;
 
             IMatch match = Game.Services.GetService<IMatch>();
-            match.MatchStateChanges += OnMatchStateChanges;
+            match.StateChanges += OnMatchStateChanges;
 
             IRound round = match.CurrentRound;
             if (round != null)
-                round.RoundStateChanges += OnRoundStateChanges;
+                round.StateChanges += OnRoundStateChanges;
 
             Transform.Size = new Size2(50, 100);
 
@@ -65,18 +65,18 @@ namespace Pong.Entities
 
             if (match.State  == MatchState.InstanciatedRound)
             {
-                match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
+                match.CurrentRound.StateChanges += OnRoundStateChanges;
             }
         }
 
-        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void OnRoundStateChanges(IRound sender, RoundState previous)
         {
-            if (e.Current == RoundState.NotStarted)
+            if (sender.State == RoundState.NotStarted)
             {
                 Enabled = false;
                 Visible = false;
             }
-            else if (e.Current == RoundState.WaitingForBallServe)
+            else if (sender.State == RoundState.WaitingForBallServe)
             {
                 Visible = true;
                 Enabled = true;

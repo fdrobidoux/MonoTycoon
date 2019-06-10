@@ -9,6 +9,7 @@ using Pong.Entities;
 using Pong.Entities.GUI;
 using Pong.Mechanics;
 using Pong.Mechanics.Serve;
+using Pong.Mechanics.States;
 
 namespace Pong.Screens
 {
@@ -23,8 +24,8 @@ namespace Pong.Screens
         Ball Ball { get; set; }
         ScoreDisplay ScoreDisplay { get; set; }
 
-        IMatch _match;
-        IRound _round => _match.CurrentRound;
+        Match _match;
+        Round _round => _match.CurrentRound;
 
         public ServeBallHandler ServeBallHandler { get; private set; }
         private FirstServerFinder FirstServerFinder { get; set; }
@@ -45,56 +46,92 @@ namespace Pong.Screens
 
         public override void Initialize()
         {
-            //_match = Game.Services.GetService<IMatch>();
+            _match = Game.Services.GetService<Match>();
+			_match.StateChanges += StateChanged;
 
-            GameComponentCollection coll = new GameComponentCollection();
+			MediaPlayer.Volume = 0.5f;
+
+			//GameComponentCollection coll = new GameComponentCollection();
 
             base.Initialize();
         }
 
-        protected override void LoadContent()
+		protected override void LoadContent()
         {
-#if DEBUG
+		#if DEBUG
             debugFont = Game.Content.Load<SpriteFont>("fonts/Arial");
-#endif
+		#endif
             music = Game.Content.Load<Song>("music/ingame");
         }
 
+		private void OnMatchStateChanged(IMatch sender, MatchState previous)
+		{
+			if (sender is IMatch match)
+			{
+				StateChanged(match, previous);
+				foreach (var sensitiveComp in Components.OfType<IMatchStateSensitive>())
+				{
+					sensitiveComp.StateChanged(match, previous);
+				}
+			}
+		}
 
-        /// <summary>
-        /// MATCH EVENTS
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Match_StateChanged(IMatch match, MatchState previous)
+		private void OnRoundStateChanged(IRound round, RoundState previous)
+		{
+			
+		}
+
+		public void handleSensitivity<T1, T2, T3>(T1 comp, T3 prev) 
+			where T1 : IMachineStateComponent<T3>
+            where T2 : IStateSensitive<T1, T3>
+            where T3 : Enum
         {
-            if (match.State == MatchState.InstanciatedRound)
-            {
-                //match.CurrentRound.RoundStateChanges += onRoundStateChanges;
-                MediaPlayer.Volume = 0.5f;
-                MediaPlayer.Play(music);
-            }
+			foreach (T2 sensitiveComp in Components.OfType<T2>()) // TODO: Implement `OrderBy()` call.
+			{
+				sensitiveComp.StateChanged(comp, prev);
+			}
         }
 
-        /// <summary>
-        /// ROUND EVENTS
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
-        {
-            if (!(sender is IRound round))
-                return;
+		/// <summary>
+		/// MATCH EVENTS
+		/// </summary>
+		public void StateChanged(IMatch match, MatchState previous)
+		{
+			if (match.State == MatchState.InstanciatedRound)
+			{
+				match.CurrentRound.StateChanges += StateChanged;
+				MediaPlayer.Play(music);
+			}
+			else if (match.State == MatchState.Finished)
+			{
+				match.CurrentRound.StateChanges -= StateChanged;
+				MediaPlayer.Stop();
+			}
 
-            if (e.Current.Equals(RoundState.WaitingForBallServe))
-            {
-                Paddle servingPaddle = Components.OfType<Paddle>().Where((x) => x.Team == round.ServingTeam).Single();
-                ServeBallHandler.AssignEntitiesNecessaryForServing(Ball, servingPaddle);
-            }
-            else if (e.Previous.Equals(RoundState.WaitingForBallServe))
-            {
-                ServeBallHandler.UnassignEntitiesNecessaryForServing();
-            }
+			handleSensitivity<IMatch, IMatchStateSensitive, MatchState>(match, previous);
+		}
+
+		/// <summary>
+		/// ROUND EVENTS
+		/// </summary>
+		public void StateChanged(IRound round, RoundState previous)
+		{
+			if (round.State.Equals(RoundState.WaitingForBallServe))
+			{
+				Paddle servingPaddle = Components.OfType<Paddle>().First(x => x.Team == round.ServingTeam);
+				ServeBallHandler.AssignEntitiesNecessaryForServing(Ball, servingPaddle);
+			}
+			else if (previous.Equals(RoundState.WaitingForBallServe))
+			{
+				ServeBallHandler.UnassignEntitiesNecessaryForServing();
+			}
+
+			handleSensitivity<IRound, IRoundStateSensitive, RoundState>(round, previous);
+		}
+
+		public override void Update(GameTime gt)
+        {
+            base.Update(gt);
         }
 
         public override void Draw(GameTime gt)
@@ -121,5 +158,5 @@ namespace Pong.Screens
                 ServeBallHandler?.Dispose();
             }
         }
-    }
+	}
 }

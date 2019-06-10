@@ -34,7 +34,7 @@ namespace Pong
             IsMouseVisible = true;
 
             // Match Service
-            Services.AddService<IMatch>(Match = new Match(this, MatchState.DemoMode));
+            Services.AddService<IMatch>(Match = new Match(this));
             Components.Add(Match);
 
             // ScreenManager Service

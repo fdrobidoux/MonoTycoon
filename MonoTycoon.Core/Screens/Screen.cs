@@ -55,7 +55,7 @@ namespace MonoTycoon.Core.Screens
         /// </summary>
         public override void Initialize()
         {
-            foreach (GameComponent gc in this.Components)
+            foreach (GameComponent gc in Components)
                 gc.Initialize();
             Initialized = true;
             base.Initialize();

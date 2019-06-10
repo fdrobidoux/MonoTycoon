@@ -7,10 +7,11 @@ using Microsoft.Xna.Framework.Audio;
 using System;
 using Pong.Core;
 using Pong.Entities;
+using Pong.Mechanics.States;
 
 namespace Pong.Mechanics.Serve
 {
-    public class FirstServerFinder : DrawableGameComponent
+    public class FirstServerFinder : DrawableGameComponent, IMatchStateSensitive, IRoundStateSensitive
     {
         private Ball TheBall;
         private Team currentTeam;
@@ -40,7 +41,7 @@ namespace Pong.Mechanics.Serve
             base.Initialize();
 
             IMatch _match = Game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += onMatchStateChanges;
+            _match.StateChanges += StateChanged;
 
             currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
 
@@ -70,32 +71,25 @@ namespace Pong.Mechanics.Serve
         {
             if (!(sender is IMatch match))
                 return;
+        }
 
+        public void StateChanged(IMatch match, MatchState previous)
+        {
             if (match.State == MatchState.InstanciatedRound)
             {
-                match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 Enabled = true;
                 Visible = true;
             }
-            else if (previous == MatchState.InstanciatedRound)
-            {
-                match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
-            }
         }
 
-        /// <summary>
-        /// ROUND EVENTS
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
-        {
-            if (e.Current != RoundState.NotStarted)
-            {
-                Enabled = false;
-                Visible = false;
-            }
-        }
+		public void StateChanged(IRound round, RoundState previous)
+		{
+			if (round.State != RoundState.NotStarted)
+			{
+				Enabled = false;
+				Visible = false;
+			}
+		}
 
         /// <summary>
         /// Update method.
@@ -166,5 +160,5 @@ namespace Pong.Mechanics.Serve
             float x = (float)TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
             return MathF.Abs(MathF.Sin((6 * x) + 0.5f)) + 0.5f;
         }
-    }
+	}
 }

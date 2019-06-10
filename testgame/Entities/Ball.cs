@@ -39,7 +39,7 @@ namespace Pong.Entities
 
             IMatch _match = Game.Services.GetService<IMatch>();
 
-            _match.MatchStateChanges += OnMatchStateChanges;
+            _match.StateChanges += OnMatchStateChanges;
 
             Velocity = STARTING_VELOCITY;
             Direction = new Vector2(0.35f, 0.65f);
@@ -59,20 +59,21 @@ namespace Pong.Entities
             }
         }
 
-        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void OnRoundStateChanges(IRound sender, RoundState previous)
         {
-            Visible = !e.Current.Equals(RoundState.NotStarted);
-            Enabled = e.Current.Equals(RoundState.InProgress);
 
-            if (e.Current.Equals(RoundState.WaitingForBallServe))
+            Visible = !sender.State.Equals(RoundState.NotStarted);
+            Enabled = sender.State.Equals(RoundState.InProgress);
+
+            if (sender.State.Equals(RoundState.WaitingForBallServe))
             {
                 Transform.Scale = 1f;
                 Visible = true;
             }
         }
 
-        private void SetRoundEvents(IRound round) => round.RoundStateChanges += OnRoundStateChanges;
-        private void UnsetRoundEvents(IRound round) => round.RoundStateChanges -= OnRoundStateChanges;
+        private void SetRoundEvents(IRound round) => round.StateChanges += OnRoundStateChanges;
+        private void UnsetRoundEvents(IRound round) => round.StateChanges -= OnRoundStateChanges;
 
         public void Reset()
         {

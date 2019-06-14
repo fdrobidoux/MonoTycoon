@@ -2,19 +2,32 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
         <ApplicationIcon />
         <StartupObject>Pong.Program</StartupObject>
         <Win32Resource />
         <SignAssembly>false</SignAssembly>
+        <LangVersion>7.3</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
       <DefineConstants>DEBUG;TRACE</DefineConstants>
+      <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+      <DebugType>portable</DebugType>
+      <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <ItemGroup>
-        <MonoGameContentReference Include="**\*.mgcb" />
+        <MonoGameContentReference Include="Content\*.mgcb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Content\fonts\Arial.spritefont" Exclude="">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Content\fonts\Hachicro12.spritefont">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -27,13 +40,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Content\textures\" />
-      <Folder Include="Content\obj\" />
-      <Folder Include="Graphics\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\MonoTycoon.Core\MonoTycoon.Core.csproj" />
+      <ProjectReference Include="..\MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj" />
     </ItemGroup>
 
 </Project>

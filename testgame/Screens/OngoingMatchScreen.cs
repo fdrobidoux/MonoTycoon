@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using MonoTycoon.Core.Screens;
-using Pong.Core;
 using Pong.Entities;
 using Pong.Entities.GUI;
 using Pong.Mechanics;
@@ -12,10 +11,10 @@ using Pong.Mechanics.Serve;
 
 namespace Pong.Screens
 {
-    public class OngoingMatchScreen : Screen, IMatchStateSensitive, IRoundStateSensitive
+    public class OngoingMatchScreen : Screen
     {
 #if DEBUG
-        private SpriteFont debugFont;
+        SpriteFont debugFont;
 #endif
         // Game Components
         Paddle PlayerPaddle { get; set; }
@@ -27,9 +26,9 @@ namespace Pong.Screens
         IRound _round => _match.CurrentRound;
 
         public ServeBallHandler ServeBallHandler { get; private set; }
-        private FirstServerFinder FirstServerFinder { get; set; }
+        FirstServerFinder FirstServerFinder { get; set; }
 
-        private Song music;
+        Song music;
 
         public OngoingMatchScreen(Game game) : base(game)
         {
@@ -41,13 +40,17 @@ namespace Pong.Screens
             Components.Add(ScoreDisplay = new ScoreDisplay(game));
             Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
             Components.Add(ServeBallHandler = new ServeBallHandler(Game));
-        }
+			
+			updateActions.Add((x) => {
+				if (!(x is IMatchStateSensitive sensitiveToMatchStateComp))
+					return;
+			});
+		}
 
         public override void Initialize()
         {
-            //_match = Game.Services.GetService<IMatch>();
-
-            GameComponentCollection coll = new GameComponentCollection();
+            _match = Game.Services.GetService<IMatch>();
+			_match.MatchStateChanges += OnMatchStateChanged;
 
             base.Initialize();
         }
@@ -58,19 +61,22 @@ namespace Pong.Screens
             debugFont = Game.Content.Load<SpriteFont>("fonts/Arial");
 #endif
             music = Game.Content.Load<Song>("music/ingame");
-        }
+		}
 
 
-        /// <summary>
-        /// MATCH EVENTS
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Match_StateChanged(IMatch match, MatchState previous)
+		/// <summary>
+		/// MATCH EVENTS
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		public void OnMatchStateChanged(object sender, MatchState previous)
         {
-            if (match.State == MatchState.InstanciatedRound)
+			if (!(sender is IMatch match))
+				return;
+
+            if (match.State == MatchState.FindingFirstServer)
             {
-                //match.CurrentRound.RoundStateChanges += onRoundStateChanges;
+                match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 MediaPlayer.Volume = 0.5f;
                 MediaPlayer.Play(music);
             }
@@ -81,23 +87,28 @@ namespace Pong.Screens
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void onRoundStateChanges(object sender, RoundState previous)
         {
             if (!(sender is IRound round))
                 return;
 
-            if (e.Current.Equals(RoundState.WaitingForBallServe))
+            if (round.State.Equals(RoundState.WaitingForBallServe))
             {
                 Paddle servingPaddle = Components.OfType<Paddle>().Where((x) => x.Team == round.ServingTeam).Single();
-                ServeBallHandler.AssignEntitiesNecessaryForServing(Ball, servingPaddle);
+                ServeBallHandler.AssignRequiredEntities(Ball, servingPaddle);
             }
-            else if (e.Previous.Equals(RoundState.WaitingForBallServe))
+            else if (previous.Equals(RoundState.WaitingForBallServe))
             {
-                ServeBallHandler.UnassignEntitiesNecessaryForServing();
+                ServeBallHandler.FreeRequiredEntities();
             }
         }
 
-        public override void Draw(GameTime gt)
+		public override void Update(GameTime gameTime)
+		{
+			base.Update(gameTime);
+		}
+
+		public override void Draw(GameTime gt)
         {
             base.Draw(gt);
 #if DEBUG

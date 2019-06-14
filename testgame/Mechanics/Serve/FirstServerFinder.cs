@@ -71,13 +71,13 @@ namespace Pong.Mechanics.Serve
             if (!(sender is IMatch match))
                 return;
 
-            if (match.State == MatchState.InstanciatedRound)
+            if (match.State == MatchState.FindingFirstServer)
             {
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 Enabled = true;
                 Visible = true;
             }
-            else if (previous == MatchState.InstanciatedRound)
+            else if (previous == MatchState.FindingFirstServer)
             {
                 match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
             }
@@ -88,9 +88,12 @@ namespace Pong.Mechanics.Serve
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void onRoundStateChanges(object sender, RoundState e)
         {
-            if (e.Current != RoundState.NotStarted)
+			if (!(sender is IRound round))
+				return;
+
+			if (round.State != RoundState.NotStarted)
             {
                 Enabled = false;
                 Visible = false;

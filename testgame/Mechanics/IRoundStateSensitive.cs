@@ -1,12 +1,13 @@
-﻿using Pong.Core;
+﻿using MonoTycoon.Core.States;
+using Pong.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Pong.Mechanics
 {
-    public interface IRoundStateSensitive
-    {
-        void Round_StateChanged(IRound round, RoundState previous);
+    public interface IRoundStateSensitive : IStateSensitive<IRound, RoundState>
+	{
+		
     }
 }

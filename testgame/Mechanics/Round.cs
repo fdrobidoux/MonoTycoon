@@ -9,8 +9,10 @@ namespace Pong.Mechanics
 {
     public class Round : GameComponent, IRound
     {
-        RoundState _state;
-        public RoundState State
+		Match _assignedMatch;
+
+		RoundState _state;
+		public RoundState State
         {
             get => _state;
             set
@@ -23,16 +25,17 @@ namespace Pong.Mechanics
         }
         public ushort Number { get; set; }
         public Team ServingTeam { get; set; }
+
         public event EventHandler<RoundState> RoundStateChanges;
-        
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="game">Game instance</param>
-        /// <param name="state">Starting state</param>
-        /// <param name="number">Number of round we're at.</param>
-        /// <param name="servingTeam">Who serves.</param>
-        public Round(Game game, RoundState state, ushort number) : base(game)
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="game">Game instance</param>
+		/// <param name="state">Starting state</param>
+		/// <param name="number">Number of round we're at.</param>
+		/// <param name="servingTeam">Who serves.</param>
+		public Round(Game game, RoundState state, ushort number) : base(game)
         {
             State = state;
             Number = number;
@@ -40,20 +43,31 @@ namespace Pong.Mechanics
 
         public override void Initialize()
         {
-            RoundStateChanges += StateChanged;
+			RoundStateChanges = null;
+			RoundStateChanges += StateChanged;
         }
 
-        void StateChanged(object sender, RoundState previous)
-        {
-            
-        }
-
-        public new void Dispose()
+		public new void Dispose()
         {
             RoundStateChanges = null;
             base.Dispose();
-        }
-    }
+		}
+
+		void StateChanged(object sender, RoundState previous)
+		{
+
+		}
+
+		internal void AssignMatch(Match match)
+		{
+			_assignedMatch = match;
+		}
+
+		internal void UnassignMatch()
+		{
+			_assignedMatch = null;
+		}
+	}
 
     public interface IRound : IGameComponent, IUpdateable, IDisposable
     {

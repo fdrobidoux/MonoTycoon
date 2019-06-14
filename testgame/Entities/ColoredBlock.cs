@@ -13,7 +13,7 @@ namespace Pong.Entities
         public Transform2 Transform { get; set; }
 
         public float velocity;
-        private Vector2 direction;
+        Vector2 direction;
 
         public Texture2D colorTexture;
 
@@ -27,7 +27,7 @@ namespace Pong.Entities
             base.Initialize();
 
             IMatch match = Game.Services.GetService<IMatch>();
-            match.MatchStateChanges += Match_MatchStateChanges; ;
+            match.MatchStateChanges += Match_MatchStateChanges;
 
             velocity = 50;
             var direction = new Vector2(-20, 50);

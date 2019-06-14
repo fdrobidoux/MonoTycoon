@@ -49,9 +49,12 @@ namespace Pong.Mechanics.Serve
                 match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
         }
 
-        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void OnRoundStateChanges(object sender, RoundState previous)
         {
-            Enabled = e.IsNow(RoundState.WaitingForBallServe);
+			if (!(sender is IRound round))
+				return;
+
+			Enabled = round.State.Equals(RoundState.WaitingForBallServe);
         }
 
         public override void Update(GameTime gt)
@@ -61,7 +64,8 @@ namespace Pong.Mechanics.Serve
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
                 Enabled = false;
-                var blah = new Vector2(-1f, 1f);
+
+                var blah = Vector2.Normalize(new Vector2(-1f, 1f));
                 if (ServingPaddle.Team == Team.Blue)
                     blah *= -1;
 
@@ -74,18 +78,18 @@ namespace Pong.Mechanics.Serve
             else
             {
                 TheBall.Transform.Location = new Vector2(
-                    TheBall.Transform.Location.X, 
-                    ServingPaddle.Transform.Location.Y + (ServingPaddle.Transform.Size.Height / 2));
+                    x: TheBall.Transform.Location.X, 
+                    y: ServingPaddle.Transform.Location.Y + (ServingPaddle.Transform.Size.Height / 2));
             }
         }
 
-        public void AssignEntitiesNecessaryForServing(Ball ball, Paddle servingPaddle)
+        public void AssignRequiredEntities(Ball ball, Paddle servingPaddle)
         {
             TheBall = ball;
             ServingPaddle = servingPaddle;
         }
 
-        public void UnassignEntitiesNecessaryForServing()
+        public void FreeRequiredEntities()
         {
             TheBall = null;
             ServingPaddle = null;
@@ -94,7 +98,7 @@ namespace Pong.Mechanics.Serve
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-                UnassignEntitiesNecessaryForServing();
+                FreeRequiredEntities();
         }
 
         private void allowServing()

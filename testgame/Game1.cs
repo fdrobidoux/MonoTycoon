@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -15,12 +17,12 @@ namespace Pong
         public static SpriteBatch SpriteBatch { get; private set; }
 
         // Services
-        private Match Match { get; }
-        private ScreenManager ScreenManager { get; }
+        Match Match { get; }
+        ScreenManager ScreenManager { get; }
 
         // Screens
-        private OngoingMatchScreen ongoingMatchScreen;
-        private StartGameScreen startGameScreen;
+        OngoingMatchScreen ongoingMatchScreen;
+        StartGameScreen startGameScreen;
 
         public Game1() : base()
         {
@@ -33,17 +35,16 @@ namespace Pong
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // Match Service
-            Services.AddService<IMatch>(Match = new Match(this, MatchState.DemoMode));
+			// Match Service
+			Match = new Match(this);
+			Match.UpdateOrder = (int)RootComponentOrder.MATCH;
+			Services.AddService<IMatch>(Match);
             Components.Add(Match);
 
             // ScreenManager Service
             ScreenManager = new ScreenManager(this, ongoingMatchScreen = new OngoingMatchScreen(this));
             Services.AddService<IScreenManager>(ScreenManager);
             Components.Add(ScreenManager);
-
-            ColoredBlock block = new ColoredBlock(this);
-            Components.Add(block);
         }
 
         protected override void Initialize()
@@ -54,6 +55,7 @@ namespace Pong
                 startGameScreen = new StartGameScreen(this);
                 ScreenManager.Push(startGameScreen);
             }
+			Debug.WriteLine("Hello");
         }
 
         protected override void LoadContent()
@@ -76,9 +78,16 @@ namespace Pong
         {
             GraphicsDevice.Clear(Color.White);
 
-            SpriteBatch.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.AnisotropicWrap);
+            SpriteBatch.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.AnisotropicWrap, sortMode: SpriteSortMode.Immediate);
             base.Draw(gameTime);
             SpriteBatch.End();
         }
+
+		private enum RootComponentOrder : int
+		{
+			DEFAULT = 0,
+			MATCH = -1,
+			ROUND = -2,
+		}
     }
 }

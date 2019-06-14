@@ -20,9 +20,12 @@ namespace Pong.Mechanics
                 if (value == _state) return;
                 MatchState previous = _state;
                 _state = value;
-                MatchStateChanges?.Invoke(this, previous);
+				_hasChanged = true;
+				MatchStateChanges?.Invoke(this, previous);
             }
         }
+
+		bool _hasChanged;
 
         int _scoreBlue;
         public int ScoreBlue
@@ -32,10 +35,10 @@ namespace Pong.Mechanics
             {
                 if (value == _scoreBlue)
                     return;
-                bool wasReduced = value < _scoreBlue;
+                bool valueIncreased = value > _scoreBlue;
                 _scoreBlue = value;
-                if (wasReduced) return;
-                TeamScores?.Invoke(this, Team.Blue);
+                if (valueIncreased)
+					TeamScores?.Invoke(this, Team.Blue);
             }
         }
 
@@ -46,15 +49,25 @@ namespace Pong.Mechanics
             private set
             {
                 if (value == _scoreRed) return;
-                int old = _scoreRed;
+                bool valueIncreased = value > _scoreRed;
                 _scoreRed = value;
-                if (value < _scoreRed) return;
-                TeamScores?.Invoke(this, Team.Red);
+                if (valueIncreased)
+					TeamScores?.Invoke(this, Team.Red);
             }
         }
 
-        public Round CurrentRound { get; set; }
-        IRound IMatch.CurrentRound => CurrentRound;
+		Round _currentRound;
+        public Round CurrentRound 
+		{
+			get => _currentRound; 
+			set 
+			{
+				_currentRound?.UnassignMatch();
+				_currentRound = value;
+				_currentRound.AssignMatch(this);
+			}
+		}
+		IRound IMatch.CurrentRound => CurrentRound;
 
         public event EventHandler<Team> TeamScores;
         public event EventHandler<MatchState> MatchStateChanges;
@@ -65,15 +78,26 @@ namespace Pong.Mechanics
 
         public override void Initialize()
         {
-            MatchStateChanges = null;
-            MatchStateChanges += OnMatchStateChanges;
+			_hasChanged = false;
             _scoreBlue = 0;
             _scoreRed = 0;
-        }
+			MatchStateChanges = null;
+			MatchStateChanges += OnMatchStateChanges;
+		}
 
-        #region "Unique To `Match`"
+		public override void Update(GameTime gameTime)
+		{
+			resetStateChangedFlag();
+		}
 
-        public void AddOnePointTo(Team team)
+		private void resetStateChangedFlag()
+		{
+			_hasChanged = false;
+		}
+
+		#region "Unique To `Match`"
+
+		public void AddOnePointTo(Team team)
         {
             switch (team)
             {
@@ -143,6 +167,10 @@ namespace Pong.Mechanics
         /// When `_currentRound` now has an instance of a `Round` object. Finding the first server...
         /// </summary>
         InstanciatedRound,
+		/// <summary>
+		/// First server is being found.
+		/// </summary>
+		FindingFirstServer,
         /// <summary>
         /// Player can control; Refer to RoundState from then on.
         /// </summary>

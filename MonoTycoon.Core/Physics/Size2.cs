@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace MonoTycoon.Core.Physics
 {
     public struct Size2
-    {
+	{
         public static readonly Size2 Zero = new Size2(0, 0);
 
         public int Width { get; }
@@ -30,7 +32,7 @@ namespace MonoTycoon.Core.Physics
             return new Vector2(Width, Height);
         }
 
-        public static Size2 operator +(Size2 s1, Size2 s2)
+		public static Size2 operator +(Size2 s1, Size2 s2)
         {
             return new Size2(s1.Width + s2.Width, s1.Height + s2.Height);
         }

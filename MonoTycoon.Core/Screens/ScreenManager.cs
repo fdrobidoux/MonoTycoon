@@ -36,24 +36,26 @@ namespace MonoTycoon.Core.Screens
         Screen Pop();
     }
 
-    /// <summary>
-    /// This class is a collection/stack of active screens in the game.
-    /// A game should have one screen manager and control the active screens by 
-    /// adding and removing screens from this manager.
-    /// 
-    /// The top screen of the stack will be updated and the top screens that are 
-    /// translucent will be drawn. The first screen on the stack that isn't translucent
-    /// will stop the drawing.
-    /// 
-    /// In Game:
-    /// public ScreenManager Screens { get; private set; }
-    /// 
-    /// In Game.Initialize():
-    /// this.Components.Add( this.Screens = new ScreenManager(this, new StartScreen(this)) );
-    /// 
-    /// </summary>
-    /// By Koen Bollen, 2011
-    public class ScreenManager : DrawableGameComponent, IScreenManager
+	/// <summary>
+	/// This class is a collection/stack of active screens in the game.<br />
+	/// A game should have one screen manager and control the active screens by 
+	/// adding and removing screens from this manager.
+	/// 
+	/// <para>The top screen of the stack will be updated and the top screens that are 
+	/// translucent will be drawn. The first screen on the stack that isn't translucent
+	/// will stop the drawing.</para>
+	/// 
+	/// <para><em>In Game:</em><br />
+	///	<code>public ScreenManager Screens { get; private set; }</code>
+	/// </para>
+	/// 
+	/// <para><em>In Game.Initialize():</em><br />
+	/// <code>this.Components.Add( this.Screens = new ScreenManager(this, new StartScreen(this)) );</code>
+	/// </para>
+	/// 
+	/// </summary>
+	/// By Koen Bollen, 2011
+	public class ScreenManager : DrawableGameComponent, IScreenManager
     {
         public bool Initialized { get; private set; }
 

@@ -1,11 +1,11 @@
 
 #----------------------------- Global Properties ----------------------------#
 
-/outputDir:bin/yo/$(Platform)
-/intermediateDir:obj/yo/$(Platform)
+/outputDir:bin/$(Platform)
+/intermediateDir:obj/$(Platform)
 /platform:DesktopGL
 /config:
-/profile:HiDef
+/profile:Reach
 /compress:False
 
 #-------------------------------- References --------------------------------#
@@ -36,73 +36,73 @@
 #begin sfx/ai_scores.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/ai_scores.wav
 
 #begin sfx/ai_wins.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/ai_wins.wav
 
 #begin sfx/blue_hit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/blue_hit.wav
 
 #begin sfx/firstserver_chosen.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/firstserver_chosen.wav
 
 #begin sfx/firstserver_switch.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/firstserver_switch.wav
 
 #begin sfx/player_scores.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/player_scores.wav
 
 #begin sfx/player_win.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/player_win.wav
 
 #begin sfx/pressed_start.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/pressed_start.wav
 
 #begin sfx/red_hit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/red_hit.wav
 
 #begin sfx/wall_hit_1.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/wall_hit_1.wav
 
 #begin sfx/wall_hit_2.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/wall_hit_2.wav
 
 #begin sfx/wall_hit_3.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:sfx/wall_hit_3.wav
 
 #begin textures/ball.png
@@ -116,6 +116,42 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:textures/ball.png
+
+#begin textures/paddle-left.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:textures/paddle-left.png
+
+#begin textures/paddle-middle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:textures/paddle-middle.png
+
+#begin textures/paddle-right.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:textures/paddle-right.png
 
 #begin textures/ship.jpg
 /importer:TextureImporter

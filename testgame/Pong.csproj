@@ -14,7 +14,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <MonoGameContentReference Include="**\*.mgcb" />
+        <MonoGameContentReference Include="Content\*.mgcb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Content\fonts\Arial.spritefont" Exclude="">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Content\fonts\Hachicro12.spritefont">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -24,12 +33,6 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Content\textures\" />
-      <Folder Include="Content\obj\" />
-      <Folder Include="Graphics\" />
     </ItemGroup>
 
     <ItemGroup>

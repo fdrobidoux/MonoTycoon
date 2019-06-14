@@ -8,7 +8,7 @@ namespace MonoTycoon.Core
     {
     }
 
-    public enum OriginPrefab
+	public enum Origin : byte
     {
         ZERO,
         CENTER

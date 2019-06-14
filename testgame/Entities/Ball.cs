@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace Pong.Entities
 {
-    public class Ball : DrawableGameComponent
+    public class Ball : DrawableGameComponent, IMatchStateSensitive
     {
         private const double STARTING_VELOCITY = 300; // Pixels per second.
 
@@ -21,9 +21,11 @@ namespace Pong.Entities
 
         public Texture2D Sprite;
 
+		#if DEBUG
         public SpriteFont DebugFont { get; private set; }
-
-        private const string SFX_WALLHIT_BASE = "wall_hit_{0}";
+		#endif
+        
+		private const string SFX_WALLHIT_BASE = "sfx/wall_hit_{0}";
         private List<SoundEffect> sfxGroup_WallHit;
 
         public Ball(Game game) : base(game)
@@ -48,27 +50,36 @@ namespace Pong.Entities
             Visible = false;
         }
 
-        private void OnMatchStateChanges(object sender, MatchState previous)
+		public void Match_StateChanged(IMatch match, MatchState previous)
+		{
+			Visible = match.State.Any(MatchState.InstanciatedRound, MatchState.InProgress);
+
+			if (match.State == MatchState.InstanciatedRound)
+				SetRoundEvents(match.CurrentRound);
+		}
+
+		private void OnMatchStateChanges(object sender, MatchState previous)
         {
             if (sender is IMatch match)
-            {
-                Visible = match.State.Any(MatchState.InstanciatedRound, MatchState.InProgress);
-
-                if (match.State == MatchState.InstanciatedRound)
-                    SetRoundEvents(match.CurrentRound);
-            }
+				Match_StateChanged(match, previous);
         }
 
-        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
-        {
-            Visible = !e.Current.Equals(RoundState.NotStarted);
-            Enabled = e.Current.Equals(RoundState.InProgress);
+		public void Round_StateChanged(IRound round, RoundState previous)
+		{
+			Visible = !round.State.Equals(RoundState.NotStarted);
+			Enabled = round.State.Equals(RoundState.InProgress);
 
-            if (e.Current.Equals(RoundState.WaitingForBallServe))
-            {
-                Transform.Scale = 1f;
-                Visible = true;
-            }
+			if (round.State.Equals(RoundState.WaitingForBallServe))
+			{
+				Transform.Scale = 1f;
+				Visible = true;
+			}
+		}
+
+        private void OnRoundStateChanges(object sender, RoundState previous)
+        {
+			if (sender is IRound round)
+				Round_StateChanged(round, previous);
         }
 
         private void SetRoundEvents(IRound round) => round.RoundStateChanges += OnRoundStateChanges;
@@ -108,13 +119,15 @@ namespace Pong.Entities
 
         private void Bounce(GameTime gt, Rectangle bounds)
         {
-            Transform.DeconstructScaledF(out Vector2 locationF, out Vector2 sizeF);
+			Vector2 minLocationF;
+			float diffX, diffY;
+
+			Transform.DeconstructScaledF(out Vector2 locationF, out Vector2 sizeF);
             sizeF /= 2f;
-            var minLocationF = locationF - sizeF;
 
-            float diffX, diffY;
+            minLocationF = locationF - sizeF;
 
-            if ((diffX = minLocationF.X) <= 0f)
+			if ((diffX = minLocationF.X) <= 0f)
             {
                 Direction *= new Vector2(-1f, 1f);
                 Transform -= new Vector2(diffX, 0f);
@@ -167,5 +180,5 @@ namespace Pong.Entities
             Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Blue, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 #endif
         }
-    }
+	}
 }

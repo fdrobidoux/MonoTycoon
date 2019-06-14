@@ -88,9 +88,12 @@ namespace Pong.Mechanics.Serve
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void onRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void onRoundStateChanges(object sender, RoundState e)
         {
-            if (e.Current != RoundState.NotStarted)
+			if (!(sender is IRound round))
+				return;
+
+			if (round.State != RoundState.NotStarted)
             {
                 Enabled = false;
                 Visible = false;

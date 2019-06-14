@@ -69,14 +69,17 @@ namespace Pong.Entities
             }
         }
 
-        private void OnRoundStateChanges(object sender, ValueChangedEvent<RoundState> e)
+        private void OnRoundStateChanges(object sender, RoundState e)
         {
-            if (e.Current == RoundState.NotStarted)
+			if (!(sender is IRound round))
+				return;
+
+            if (round.State == RoundState.NotStarted)
             {
                 Enabled = false;
                 Visible = false;
             }
-            else if (e.Current == RoundState.WaitingForBallServe)
+            else if (round.State == RoundState.WaitingForBallServe)
             {
                 Visible = true;
                 Enabled = true;

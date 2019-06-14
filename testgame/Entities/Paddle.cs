@@ -63,7 +63,7 @@ namespace Pong.Entities
 
             //_moving = (e.Modified.Any(MatchState.InProgress, MatchState.DemoMode));
 
-            if (match.State  == MatchState.InstanciatedRound)
+            if (match.State  == MatchState.FindingFirstServer)
             {
                 match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
             }

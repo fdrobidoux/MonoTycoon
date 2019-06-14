@@ -123,7 +123,7 @@ namespace Pong.Mechanics
             {
                 CurrentRound = new Round(Game, RoundState.NotStarted, 1);
                 CurrentRound.Initialize();
-                State = MatchState.InstanciatedRound;
+                State = MatchState.FindingFirstServer;
             }
             else
             {
@@ -157,20 +157,20 @@ namespace Pong.Mechanics
         IRound StartNewRound();
     }
 
-    public enum MatchState : byte
+    public enum MatchState : int
     {
         /// <summary>
         /// Nothing is being done right now.
         /// </summary>
-        NotStarted,
-        /// <summary>
-        /// When `_currentRound` now has an instance of a `Round` object. Finding the first server...
-        /// </summary>
-        InstanciatedRound,
+        NotStarted = 0,
+		/// <summary>
+		/// When `_currentRound` now has an instance of a `Round` object. Finding the first server...
+		/// </summary>
+		InstanciatedRound = -1,
 		/// <summary>
 		/// First server is being found.
 		/// </summary>
-		FindingFirstServer,
+		FindingFirstServer = 1,
         /// <summary>
         /// Player can control; Refer to RoundState from then on.
         /// </summary>
@@ -198,5 +198,14 @@ namespace Pong.Mechanics
         /// </summary>
         public static bool None(this MatchState thisMatchState, params MatchState[] statesToAvoid) 
             => statesToAvoid.All(state => thisMatchState != state);
+
+		public static bool IsPhantomState(this MatchState thisState)
+		{
+			// TODO: Implement so that negative values return true.
+			if (((Enum.Num) thisState) < 0)
+			{
+
+			}
+		}
     }
 }

@@ -43,19 +43,20 @@ namespace Pong.Mechanics
 
         public override void Initialize()
         {
-            //RoundStateChanges += StateChanged;
+			RoundStateChanges = null;
+			RoundStateChanges += StateChanged;
         }
 
-        /*void StateChanged(object sender, RoundState previous)
-        {
-            
-        }*/
-
-        public new void Dispose()
+		public new void Dispose()
         {
             RoundStateChanges = null;
             base.Dispose();
-        }
+		}
+
+		void StateChanged(object sender, RoundState previous)
+		{
+
+		}
 
 		internal void AssignMatch(Match match)
 		{

@@ -74,7 +74,7 @@ namespace Pong.Screens
 			if (!(sender is IMatch match))
 				return;
 
-            if (match.State == MatchState.InstanciatedRound)
+            if (match.State == MatchState.FindingFirstServer)
             {
                 match.CurrentRound.RoundStateChanges += onRoundStateChanges;
                 MediaPlayer.Volume = 0.5f;

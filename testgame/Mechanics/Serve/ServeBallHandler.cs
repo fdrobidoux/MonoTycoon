@@ -45,7 +45,7 @@ namespace Pong.Mechanics.Serve
             if (!(sender is IMatch match))
                 return;
 
-            if (match.State == MatchState.InstanciatedRound)
+            if (match.State == MatchState.FindingFirstServer)
                 match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
         }
 

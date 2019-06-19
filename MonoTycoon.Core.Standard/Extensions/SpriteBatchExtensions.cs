@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using MonoTycoon.Core.Physics;
+using MonoTycoon.Physics;
 
-namespace MonoTycoon.Core
+namespace Microsoft.Xna.Framework
 {
     public static class SpriteBatchExtensions
     {

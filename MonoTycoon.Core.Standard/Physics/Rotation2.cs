@@ -1,7 +1,6 @@
 ﻿using System;
-//using MonoTycoon.Core.Inputs;
 
-namespace MonoTycoon.Core.Physics
+namespace MonoTycoon.Physics
 {
     public struct Rotation2
     {

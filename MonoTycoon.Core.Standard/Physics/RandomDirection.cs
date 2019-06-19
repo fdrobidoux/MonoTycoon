@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using MonoTycoon.Core.Common;
+using MonoTycoon.Common;
 
-namespace MonoTycoon.Core.Physics
+namespace MonoTycoon.Physics
 {
     public class RandomDirection
     {

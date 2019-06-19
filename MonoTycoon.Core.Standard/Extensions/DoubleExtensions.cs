@@ -1,6 +1,6 @@
 using System;
 
-namespace MonoTycoon.Core
+namespace Microsoft.Xna.Framework
 {
     public static class DoubleExtensions
     {

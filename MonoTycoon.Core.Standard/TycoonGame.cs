@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 
-namespace MonoTycoon.Core
+namespace MonoTycoon
 {
     public class TycoonGame : Game
     {

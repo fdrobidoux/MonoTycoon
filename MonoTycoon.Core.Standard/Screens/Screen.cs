@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MonoTycoon.Core.Screens
+namespace MonoTycoon.Screens
 {
 	/// <summary>
 	/// This is a screen that can be added to the ScreenManager. Extend it and add components 

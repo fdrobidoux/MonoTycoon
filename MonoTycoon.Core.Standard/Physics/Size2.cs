@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace MonoTycoon.Core.Physics
+namespace MonoTycoon.Physics
 {
     public struct Size2
 	{

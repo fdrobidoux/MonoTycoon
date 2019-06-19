@@ -1,2 +1,14 @@
 {
+    "files.exclude": {
+		".vscode/_*.json": true,
+		//".vscode/tasks.json": true,
+		//.".vscode/launch.json": true,
+		"bin": true,
+		"obj": true,
+		"Content/bin": true,
+		"Content/obj": true,
+		"**/*.7z": true,
+		"**/*.rar": true,
+		"**/Thumbs.db": true
+	},
 }

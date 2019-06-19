@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTycoon.Core.Graphics
+namespace MonoTycoon.Graphics
 {
     public enum Direction
     {

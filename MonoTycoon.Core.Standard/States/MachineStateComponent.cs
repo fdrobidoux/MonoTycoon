@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace MonoTycoon.Core.States
+namespace MonoTycoon.States
 {
 	public abstract class MachineStateComponent<TStateEnum> : GameComponent, IMachineStateComponent<TStateEnum>
 		where TStateEnum : Enum

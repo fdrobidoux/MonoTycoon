@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace MonoTycoon.Core.States
+namespace MonoTycoon.States
 {
 	public interface IMachineStateComponent<out T> : IGameComponent, IDisposable
 		where T : Enum, IComparable

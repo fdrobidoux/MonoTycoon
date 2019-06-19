@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 
-namespace MonoTycoon.Core.Physics
+namespace MonoTycoon.Physics
 {
     public static class Vector2Extensions
     {

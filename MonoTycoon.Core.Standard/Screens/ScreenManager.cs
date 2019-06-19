@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 
-namespace MonoTycoon.Core.Screens
+namespace MonoTycoon.Screens
 {
     public interface IScreenManager
     {

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoTycoon.Core.Common;
+using MonoTycoon.Common;
 
-namespace MonoTycoon.Core.Graphics.Primitives
+namespace MonoTycoon.Graphics.Primitives
 {
     public class RectangleTexture : GameHelper
     {

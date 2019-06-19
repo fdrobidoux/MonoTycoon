@@ -1,0 +1,13 @@
+{
+    "commands": {
+        "build": "dotnet \"build\" ./Pong/Pong_netcore.csproj",
+        "run": "dotnet \"run\" ./Pong/Pong_netcore.csproj"
+    },
+    "messages": {
+        "building": true,
+        "buildSuccess": true,
+        "buildError": true,
+        "buildErrorMessageBox": true,
+        "run": true
+    }
+}

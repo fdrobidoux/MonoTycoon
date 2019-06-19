@@ -1,5 +1,5 @@
 ﻿
-namespace MonoTycoon.Core.Physics
+namespace MonoTycoon.Physics
 {
     public enum HorizontalDirection
     {

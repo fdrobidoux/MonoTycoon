@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace MonoTycoon.Core.States
+namespace MonoTycoon.States
 {
     public interface IStateSensitive<TSystem, TEnum>
         where TSystem : IGameComponent

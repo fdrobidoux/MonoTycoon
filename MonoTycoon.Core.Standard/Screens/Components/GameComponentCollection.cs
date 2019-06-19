@@ -1,34 +1,25 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Text;
 
-namespace MonoTycoon.Core.Standard.Screens.Components
+namespace MonoTycoon.Standard.Screens.Components
 {
 	public class GameComponentCollection : Collection<IGameComponent>
 	{
-		//
-		// Summary:
-		//     /// Event that is triggered when a Microsoft.Xna.Framework.GameComponent is added
-		//     /// to this Microsoft.Xna.Framework.GameComponentCollection. ///
 		/// <summary>
-		/// Event that is triggered when a Microsoft.Xna.Framework.GameComponent is added
-		/// to this GameComponentCollection.
+		/// Event that is triggered when a GameComponent is added to this GameComponentCollection.
 		/// </summary>
 		public event EventHandler<GameComponentCollectionEventArgs> ComponentAdded;
 
 		/// <summary>
-		/// Event that is triggered when a Microsoft.Xna.Framework.GameComponent is removed
-		/// from this GameComponentCollection.
+		/// Event that is triggered when a GameComponent is removed from this GameComponentCollection.
 		/// </summary>
 		public event EventHandler<GameComponentCollectionEventArgs> ComponentRemoved;
 
-		//
-		// Summary:
-		//     /// Removes every Microsoft.Xna.Framework.GameComponent from this Microsoft.Xna.Framework.GameComponentCollection.
-		//     /// Triggers Microsoft.Xna.Framework.GameComponentCollection.OnComponentRemoved(Microsoft.Xna.Framework.GameComponentCollectionEventArgs)
-		//     once for each Microsoft.Xna.Framework.GameComponent removed. ///
+		/// <summary>
+		/// Removes every GameComponent from this <see cref="GameComponentCollection"/>.<br/>
+		/// Triggers <see cref="OnComponentRemoved(GameComponentCollectionEventArgs)"/> once for each <see cref="GameComponent"/> removed.
+		/// </summary>
 		protected override void ClearItems()
 		{
 			for (int i = 0; i < base.Count; i++)

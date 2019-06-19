@@ -1,15 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<AssemblyName>MonoTycoon.Core.Standard</AssemblyName>
+		<RootNamespace>MonoTycoon</RootNamespace>
+		<Configurations>Debug;Release;Debug-Lite</Configurations>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.7.0.7" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Core\" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Debug-Lite'">
+		<DefineConstants>$(DefineConstants);LITE</DefineConstants>
+		<!--<Optimize>false</Optimize>-->
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.7.0.7" />
+	</ItemGroup>
 
 </Project>

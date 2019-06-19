@@ -1,16 +1,18 @@
+#if !LITE
 using SDPoint = System.Drawing.Point;
-using XNAPoint = Microsoft.Xna.Framework.Point;
-using Microsoft.Xna.Framework;
+#endif
 using System;
+using Microsoft.Xna.Framework;
+using XNAPoint = Microsoft.Xna.Framework.Point;
 
-namespace MonoTycoon.Core.Physics
+namespace MonoTycoon.Physics
 {
     public static class PointExtensions
     {
-        public static Point Scale(this Point point, float scale)
+        public static XNAPoint Scale(this XNAPoint point, float scale)
             => (point.ToVector2() * scale).ToPoint();
 
-        public static Point DivideBy(this Point thisPoint, int division)
+        public static XNAPoint DivideBy(this XNAPoint thisPoint, int division)
         {
             int _x = (int)Math.Round(thisPoint.X / (double)division, 0);
             thisPoint.X = _x;
@@ -20,18 +22,17 @@ namespace MonoTycoon.Core.Physics
 
             return thisPoint;
         }
-
-        public static Point Scale(this Point point, double scale)
+		
+        public static XNAPoint Scale(this XNAPoint point, double scale)
         {
             return (point.ToVector2() * (float)scale).ToPoint();
         }
 
+#if !LITE
         public static Size2 ToSize2(this SDPoint point)
             => new Size2(point.X, point.Y);
-
-        public static Size2 ToSize2(this XNAPoint point)
+#endif
+		public static Size2 ToSize2(this XNAPoint point)
             => new Size2(point.X, point.Y);
-
-
     }
 }

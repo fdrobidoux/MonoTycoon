@@ -16,23 +16,28 @@ namespace Pong.Mechanics.Serve
         private Team currentTeam;
 
         #region "Timers"
+
         public TimerTask timerSwitcharooDo;
         public double multiplicateurInterval = 1.1D;
         public TimerTask timerEndSwitcharoo;
         public TimerTask timerEndScaling;
+
         #endregion
 
         #region "Sounds"
+
         private SoundEffect sfx_Switch;
         private SoundEffect sfx_Chosen;
+
         #endregion
 
         public FirstServerFinder(Game game, Ball ball) : base(game)
         {
             TheBall = ball;
-            timerSwitcharooDo = new TimerTask(alternateBallPosition, 33, true);
+            timerSwitcharooDo = new TimerTask(AlternateBallPosition, 33, true);
             timerEndSwitcharoo = new TimerTask(onEndSwitcharoo, int.MaxValue, false);
-            timerEndScaling = new TimerTask(finalizeFindingFirstServer, TimeSpan.FromSeconds(2).TotalMilliseconds, false);
+            timerEndScaling =
+                new TimerTask(finalizeFindingFirstServer, TimeSpan.FromSeconds(2).TotalMilliseconds, false);
         }
 
         public override void Initialize()
@@ -40,7 +45,7 @@ namespace Pong.Mechanics.Serve
             base.Initialize();
 
             IMatch _match = Game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += onMatchStateChanges;
+            _match.MatchStateChanges += OnMatchStateChanges;
 
             currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
 
@@ -65,21 +70,21 @@ namespace Pong.Mechanics.Serve
         /// MATCH EVENTS
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void onMatchStateChanges(object sender, MatchState previous)
+        /// <param name="previous"></param>
+        private void OnMatchStateChanges(object sender, MatchState previous)
         {
             if (!(sender is IMatch match))
                 return;
 
             if (match.State == MatchState.FindingFirstServer)
             {
-                match.CurrentRound.RoundStateChanges += onRoundStateChanges;
+                match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
                 Enabled = true;
                 Visible = true;
             }
             else if (previous == MatchState.FindingFirstServer)
             {
-                match.CurrentRound.RoundStateChanges -= onRoundStateChanges;
+                match.CurrentRound.RoundStateChanges -= OnRoundStateChanges;
             }
         }
 
@@ -87,13 +92,13 @@ namespace Pong.Mechanics.Serve
         /// ROUND EVENTS
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void onRoundStateChanges(object sender, RoundState e)
+        /// <param name="previous"></param>
+        private void OnRoundStateChanges(object sender, RoundState e)
         {
-			if (!(sender is IRound round))
-				return;
+            if (!(sender is IRound round))
+                return;
 
-			if (round.State != RoundState.NotStarted)
+            if (round.State != RoundState.NotStarted)
             {
                 Enabled = false;
                 Visible = false;
@@ -111,7 +116,7 @@ namespace Pong.Mechanics.Serve
             timerEndScaling.Update(gt);
         }
 
-        private void alternateBallPosition()
+        private void AlternateBallPosition()
         {
             Vector2 newPosition = Game.GraphicsDevice.Viewport.Bounds.Center.ToVector2();
             newPosition.X /= 2f;
@@ -137,7 +142,7 @@ namespace Pong.Mechanics.Serve
 
         private void finalizeFindingFirstServer()
         {
-            Match match = (Match)Game.Services.GetService<IMatch>();
+            Match match = (Match) Game.Services.GetService<IMatch>();
 
             // Remove visibility.
             Visible = false;
@@ -161,13 +166,13 @@ namespace Pong.Mechanics.Serve
         public override void Draw(GameTime gt)
         {
             if (timerEndScaling.Enabled)
-                TheBall.Transform.Scale = getBallScale();
+                TheBall.Transform.Scale = DoubleExtensions.ToFloat(_getBallScale());
         }
 
-        private float getBallScale()
+        private double _getBallScale()
         {
-            float x = (float)TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
-            return MathF.Abs(MathF.Sin((6 * x) + 0.5f)) + 0.5f;
+            double x = TimeSpan.FromMilliseconds(timerEndScaling.ElapsedMs).TotalSeconds;
+            return Math.Abs(Math.Sin((6 * x) + 0.5)) + 0.5;
         }
     }
 }

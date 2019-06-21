@@ -21,7 +21,7 @@ namespace Pong.Entities.GUI
         {
             base.Initialize();
             _match = Game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += onMatchStateChanges;
+            _match.MatchStateChanges += OnMatchStateChanges;
         }
 
         protected override void LoadContent()
@@ -31,7 +31,7 @@ namespace Pong.Entities.GUI
 
         private readonly MatchState[] STATES_WHEN_DISABLED = { MatchState.NotStarted, MatchState.DemoMode };
         
-        private void onMatchStateChanges(object sender, MatchState previous)
+        private void OnMatchStateChanges(object sender, MatchState previous)
         {
             if (!(sender is IMatch match))
                 return; 
@@ -44,7 +44,7 @@ namespace Pong.Entities.GUI
             base.Update(gt);
         }
 
-        private string generateTeamText(Team team)
+        private string GenerateTeamText(Team team)
         {
             return string.Format(STR_FORMAT, team, _match.GetScore(team));
         }
@@ -56,23 +56,23 @@ namespace Pong.Entities.GUI
             float yPos;
             foreach (Team team in Enum.GetValues(typeof(Team)))
             {
-                var measure = _font.MeasureString(generateTeamText(team));
-                yPos = MathF.Round(Game.GraphicsDevice.Viewport.Bounds.Height * 0.05F);
+                var measure = _font.MeasureString(GenerateTeamText(team));
+                yPos = (float) Math.Round(Game.GraphicsDevice.Viewport.Bounds.Height * 0.05F);
 
                 switch (team.GetScreenPosition())
                 {
                     case Direction.Left:
-                        position = new Vector2(MathF.Round(Game.GraphicsDevice.Viewport.Bounds.Width * 0.01F), yPos);
+                        position = new Vector2(Game.GraphicsDevice.Viewport.Bounds.Width * 0.01F, yPos);
                         break;
                     case Direction.Right:
-                        position = new Vector2(MathF.Round(Game.GraphicsDevice.Viewport.Bounds.Width * 0.99F) - measure.X, yPos);
+                        position = new Vector2((Game.GraphicsDevice.Viewport.Bounds.Width * 0.99F) - measure.X, yPos);
                         break;
                     default:
                         position = Vector2.Zero;
                         break;
                 }
 
-                sb.DrawString(_font, generateTeamText(team), position, team.ToColor());
+                sb.DrawString(_font, GenerateTeamText(team), position, team.ToColor());
             }
         }
     }

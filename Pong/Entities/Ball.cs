@@ -138,8 +138,8 @@ namespace Pong.Entities
 			//Vector2 boundOpposite = (Size + Position);
 
 			Transform.Location = new Vector2(
-				Math.Clamp(Transform.Location.X, viewBounds.Left, viewBounds.Right - Transform.Size.Width),
-				Math.Clamp(Transform.Location.Y, viewBounds.Top, viewBounds.Bottom - Transform.Size.Height)
+				MathHelper.Clamp(Transform.Location.X, viewBounds.Left, viewBounds.Right - Transform.Size.Width),
+				MathHelper.Clamp(Transform.Location.Y, viewBounds.Top, viewBounds.Bottom - Transform.Size.Height)
 			);
 		}
 

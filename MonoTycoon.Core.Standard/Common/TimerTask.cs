@@ -1,50 +1,66 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace MonoTycoon.Common
+namespace MonoTycoon
 {
 	public sealed class TimerTask : IUpdateable
 	{
 		readonly Action performTask;
-		double intervalMs;
+		double _intervalMs;
 
-		#region "Basic IUpdateable implementation"
-		int updateOrder;
-		private bool enabled;
-
+		#region "Basic implementation of IUpdateable"
+		private bool _enabled;
 		public bool Enabled
 		{
-			get => enabled; set => enabled = value;
+			get => _enabled;
+			set
+			{
+				if (_enabled != value)
+				{
+					_enabled = value;
+					EnabledChanged?.Invoke(this, EventArgs.Empty);
+				}
+			}
 		}
+		private int _updateOrder;
 		public int UpdateOrder
 		{
-			get => updateOrder; set => updateOrder = value;
+			get => _updateOrder;
+			set
+			{
+				if (_updateOrder != value)
+				{
+					_updateOrder = value;
+					UpdateOrderChanged?.Invoke(this, EventArgs.Empty);
+				}
+			}
 		}
-		#endregion
-
 		[Obsolete("Not used for this component.")]
 		public event EventHandler<EventArgs> EnabledChanged;
 		[Obsolete("Not used for this component.")]
 		public event EventHandler<EventArgs> UpdateOrderChanged;
+		#endregion
 
 		public double IntervalMs
 		{
-			get => intervalMs;
+			get => _intervalMs;
 			set
 			{
-				intervalMs = value;
+				_intervalMs = value;
 				Reset();
 			}
 		}
 		public bool Recurring { get; set; }
+		public bool Cumulative { get; set; }
 		public bool IsFinished { get; private set; }
 		public double ElapsedMs { get; private set; }
 
 		public TimerTask(Action performTask, double intervalMs, bool recurring = true)
 		{
 			this.performTask = performTask;
-			this.intervalMs = intervalMs;
+			IntervalMs = intervalMs;
 			Recurring = recurring;
+			Cumulative = true;
 		}
 
 		public void Update(GameTime gameTime) => Update(gameTime.ElapsedGameTime);
@@ -59,9 +75,9 @@ namespace MonoTycoon.Common
 
 			ElapsedMs += delta.TotalMilliseconds;
 
-			if (ElapsedMs > intervalMs)
+			if (ElapsedMs > _intervalMs)
 			{
-				ElapsedMs -= intervalMs;
+				ElapsedMs -= _intervalMs;
 
 				// Perform the task.
 				performTask?.Invoke();
@@ -79,11 +95,11 @@ namespace MonoTycoon.Common
 		///     Resets the timer, and sets the timer as unfinished.
 		/// </summary>
 		/// <param name="modEnabled">A <see langword="bool"/> if it's necessary to change enabled status, or <see langword="null"/> if otherwise.</param>
-		public void Reset(bool keepLastQuotient = false, bool? modEnabled = null)
+		public void Reset(bool? modEnabled = null)
 		{
 			IsFinished = false;
 
-			if (!keepLastQuotient)
+			if (!Cumulative)
 				ElapsedMs = 0;
 
 			if (modEnabled is bool en)

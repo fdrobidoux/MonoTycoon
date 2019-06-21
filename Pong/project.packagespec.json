@@ -1,0 +1,45 @@
+﻿{
+  "version": "1.0.0",
+  "restore": {
+    "projectUniqueName": "C:\\Users\\FelixDev\\source\\projects\\TycoonGame\\Pong\\Pong.csproj",
+    "projectName": "Pong",
+    "projectPath": "C:\\Users\\FelixDev\\source\\projects\\TycoonGame\\Pong\\Pong.csproj",
+    "outputPath": "C:\\Users\\FelixDev\\source\\projects\\TycoonGame\\Pong\\",
+    "projectStyle": "PackageReference",
+    "crossTargeting": true,
+    "fallbackFolders": [
+      "C:\\Microsoft\\Xamarin\\NuGet"
+    ],
+    "originalTargetFrameworks": [
+      ".NETFramework",
+      "Version=v4.7.2"
+    ],
+    "sources": {
+      "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+      "https://api.nuget.org/v3/index.json": {}
+    },
+    "frameworks": {
+      "net472": {
+        "projectReferences": {
+          "C:\\Users\\FelixDev\\source\\projects\\TycoonGame\\MonoTycoon.Core.Standard\\MonoTycoon.Core.Standard.csproj": {
+            "projectPath": "C:\\Users\\FelixDev\\source\\projects\\TycoonGame\\MonoTycoon.Core.Standard\\MonoTycoon.Core.Standard.csproj"
+          }
+        }
+      }
+    }
+  },
+  "frameworks": {
+    "net472": {}
+  },
+  "runtimes": {
+    "win": {
+      "#import": []
+    },
+    "win-x64": {
+      "#import": []
+    },
+    "win-x86": {
+      "#import": []
+    }
+  }
+}

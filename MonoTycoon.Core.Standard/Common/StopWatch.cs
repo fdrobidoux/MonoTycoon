@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTycoon.Common
+namespace MonoTycoon
 {
 	/// <summary>
 	/// Always accesible timing apparatus

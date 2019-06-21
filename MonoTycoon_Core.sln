@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoTycoon.Core.Standard", "MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj", "{6BB2BB03-B9F7-4AE6-A4BA-CD39E1ABCC7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonoTycoon.Core.Standard", "MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj", "{6BB2BB03-B9F7-4AE6-A4BA-CD39E1ABCC7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pong_netcore", "Pong\Pong_netcore.csproj", "{3BD68991-2756-477F-ACE8-E7355FB68120}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pong_netcore", "Pong\Pong_netcore.csproj", "{3BD68991-2756-477F-ACE8-E7355FB68120}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{6BB2BB03-B9F7-4AE6-A4BA-CD39E1ABCC7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -44,5 +41,11 @@ Global
 		{3BD68991-2756-477F-ACE8-E7355FB68120}.Release|x64.Build.0 = Release|Any CPU
 		{3BD68991-2756-477F-ACE8-E7355FB68120}.Release|x86.ActiveCfg = Release|Any CPU
 		{3BD68991-2756-477F-ACE8-E7355FB68120}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E63B7767-A69B-4E49-8DB7-06C9130A8D99}
 	EndGlobalSection
 EndGlobal

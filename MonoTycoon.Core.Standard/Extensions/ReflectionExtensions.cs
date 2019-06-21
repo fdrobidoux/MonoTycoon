@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using MonoTycoon;
+using MonoTycoon.Extensions;
 
-namespace System
+namespace System.Reflection
 {
-	public static class ReflectionHelper
+	public static class ReflectionExtensions
 	{
 		public const BindingFlags PUBLIC_INSTANCE_MEMBERS = BindingFlags.Instance | BindingFlags.Public;
 
@@ -17,10 +19,10 @@ namespace System
 		static readonly Dictionary<Tuple<FieldInfo, Type>, Attribute> fieldAttributeCache;
 		static readonly Dictionary<Type, MemberInfo[]> propertyCache;
 		static readonly Dictionary<Type, MemberInfo[]> serviceCache;
-		//static readonly Dictionary<MethodInfo, DynamicMethodDelegate> methodCache;
-		//static readonly Dictionary<Type, DynamicMethodDelegate> constructorCache;
+		static readonly Dictionary<MethodInfo, DynamicMethodDelegate> methodCache;
+		static readonly Dictionary<Type, DynamicMethodDelegate> constructorCache;
 
-		static ReflectionHelper()
+		static ReflectionExtensions()
 		{
 			EmptyTypes = new Type[0];
 			typeAttributeCache = new Dictionary<Tuple<Type, Type>, Attribute>();
@@ -28,11 +30,43 @@ namespace System
 			fieldAttributeCache = new Dictionary<Tuple<FieldInfo, Type>, Attribute>();
 			propertyCache = new Dictionary<Type, MemberInfo[]>();
 			serviceCache = new Dictionary<Type, MemberInfo[]>();
-			//methodCache = new Dictionary<MethodInfo, DynamicMethodDelegate>();
-			//constructorCache = new Dictionary<Type, DynamicMethodDelegate>();
+			methodCache = new Dictionary<MethodInfo, DynamicMethodDelegate>();
+			constructorCache = new Dictionary<Type, DynamicMethodDelegate>();
 		}
 
-		public static T GetFirstAttribute<T>(Type type) where T : Attribute, new()
+		public static void ClearMemberInfoCache(ClearFlag f)
+		{
+			if (f.HasFlag(ClearFlag.Properties)) propertyAttributeCache.Clear();
+			if (f.HasFlag(ClearFlag.FieldAttributes)) fieldAttributeCache.Clear();
+			if (f.HasFlag(ClearFlag.Constructors)) constructorCache.Clear();
+			if (f.HasFlag(ClearFlag.Methods)) methodCache.Clear();
+			if (f.HasFlag(ClearFlag.Properties)) propertyCache.Clear();
+			if (f.HasFlag(ClearFlag.PropertyAttributes)) propertyAttributeCache.Clear();
+			if (f.HasFlag(ClearFlag.Services)) serviceCache.Clear();
+			if (f.HasFlag(ClearFlag.TypeAttributes)) typeAttributeCache.Clear();
+		}
+
+		[Flags]
+		public enum ClearFlag : ushort
+		{
+			TypeAttributes = 1,
+			PropertyAttributes = 2,
+			FieldAttributes = 4,
+			Properties = 8,
+			Services = 16,
+			Methods = 32,
+			Constructors = 64,
+		}
+
+		public static void ClearMemberInfoCache()
+		{
+			propertyAttributeCache.Clear();
+			fieldAttributeCache.Clear();
+			constructorCache.Clear();
+			methodCache.Clear();
+		}
+
+		public static T GetFirstAttribute<T>(this Type type) where T : Attribute, new()
 		{
 			Type typeFromHandle = typeof(T);
 			Tuple<Type, Type> key = new Tuple<Type, Type>(type, typeFromHandle);
@@ -47,7 +81,7 @@ namespace System
 			return value as T;
 		}
 
-		public static T GetFirstAttribute<T>(PropertyInfo propInfo) 
+		public static T GetFirstAttribute<T>(this PropertyInfo propInfo)
 				where T : Attribute, new()
 		{
 			Type typeFromHandle = typeof(T);
@@ -63,7 +97,7 @@ namespace System
 			return value as T;
 		}
 
-		public static T GetFirstAttribute<T>(FieldInfo fieldInfo) 
+		public static T GetFirstAttribute<T>(this FieldInfo fieldInfo)
 				where T : Attribute, new()
 		{
 			var typeFromHandle = typeof(T);
@@ -80,7 +114,7 @@ namespace System
 			return value as T;
 		}
 
-		public static T GetFirstAttribute<T>(MemberInfo memberInfo) where T : Attribute, new()
+		public static T GetFirstAttribute<T>(this MemberInfo memberInfo) where T : Attribute, new()
 		{
 			if (memberInfo is PropertyInfo propertyInfo)
 			{
@@ -89,7 +123,7 @@ namespace System
 			return GetFirstAttribute<T>(memberInfo as FieldInfo);
 		}
 
-		public static MemberInfo[] GetSerializableMembers(Type type)
+		public static MemberInfo[] GetSerializableMembers(this Type type)
 		{
 			lock (propertyCache)
 			{
@@ -112,7 +146,7 @@ namespace System
 			}
 		}
 
-		public static MemberInfo[] GetSettableProperties(Type type)
+		public static MemberInfo[] GetSettableProperties(this Type type)
 		{
 			lock (serviceCache)
 			{
@@ -128,7 +162,7 @@ namespace System
 			}
 		}
 
-		public static Type GetMemberType(MemberInfo member)
+		public static Type GetMemberType(this MemberInfo member)
 		{
 			if (member is PropertyInfo)
 			{
@@ -141,7 +175,7 @@ namespace System
 			throw new NotImplementedException();
 		}
 
-		public static bool IsGenericSet(Type type)
+		public static bool IsGenericSet(this Type type)
 		{
 			return type.GetInterfaces().Any(delegate (Type i)
 			{
@@ -153,7 +187,7 @@ namespace System
 			});
 		}
 
-		public static bool IsGenericList(Type type)
+		public static bool IsGenericList(this Type type)
 		{
 			return type.GetInterfaces().Any(delegate (Type i)
 			{
@@ -164,8 +198,8 @@ namespace System
 				return false;
 			});
 		}
-		
-		public static bool IsGenericCollection(Type type)
+
+		public static bool IsGenericCollection(this Type type)
 		{
 			return type.GetInterfaces().Any(delegate (Type i)
 			{
@@ -177,10 +211,11 @@ namespace System
 			});
 		}
 
-		public static bool IsGenericDictionary(Type type)
+		public static bool IsGenericDictionary(this Type type)
 		{
 			return type.GetInterfaces().Any(
-				delegate (Type i) {
+				delegate (Type i)
+				{
 					if (i.IsGenericType)
 					{
 						return i.GetGenericTypeDefinition() == typeof(IDictionary<,>);
@@ -189,7 +224,7 @@ namespace System
 				});
 		}
 
-		public static bool IsNullable(Type type)
+		public static bool IsNullable(this Type type)
 		{
 			if (type.IsGenericType)
 			{
@@ -198,117 +233,117 @@ namespace System
 			return false;
 		}
 
-		//public static DynamicMethodDelegate CreateDelegate(MethodBase method)
-		//{
-		//	ParameterInfo[] parameters = method.GetParameters();
-		//	int num = parameters.Length;
-		//	Type[] parameterTypes = new Type[2]
-		//	{
-		//		typeof(object),
-		//		typeof(object[])
-		//	};
-		//	DynamicMethod dynamicMethod = new DynamicMethod("", typeof(object), parameterTypes, typeof(ReflectionHelper).Module, skipVisibility: true);
-		//	ILGenerator iLGenerator = dynamicMethod.GetILGenerator();
-		//	Label label = iLGenerator.DefineLabel();
-		//	iLGenerator.Emit(OpCodes.Ldarg_1);
-		//	iLGenerator.Emit(OpCodes.Ldlen);
-		//	iLGenerator.Emit(OpCodes.Ldc_I4, num);
-		//	iLGenerator.Emit(OpCodes.Beq, label);
-		//	iLGenerator.Emit(OpCodes.Newobj, typeof(TargetParameterCountException).GetConstructor(Type.EmptyTypes));
-		//	iLGenerator.Emit(OpCodes.Throw);
-		//	iLGenerator.MarkLabel(label);
-		//	if (!method.IsStatic && !method.IsConstructor)
-		//	{
-		//		iLGenerator.Emit(OpCodes.Ldarg_0);
-		//		if (method.DeclaringType.IsValueType)
-		//		{
-		//			iLGenerator.Emit(OpCodes.Unbox, method.DeclaringType);
-		//		}
-		//	}
-		//	for (int i = 0; i < num; i++)
-		//	{
-		//		iLGenerator.Emit(OpCodes.Ldarg_1);
-		//		iLGenerator.Emit(OpCodes.Ldc_I4, i);
-		//		iLGenerator.Emit(OpCodes.Ldelem_Ref);
-		//		Type parameterType = parameters[i].ParameterType;
-		//		if (parameterType.IsValueType)
-		//		{
-		//			iLGenerator.Emit(OpCodes.Unbox_Any, parameterType);
-		//		}
-		//	}
-		//	if (method.IsConstructor)
-		//	{
-		//		iLGenerator.Emit(OpCodes.Newobj, method as ConstructorInfo);
-		//	}
-		//	else if (method.IsFinal || !method.IsVirtual)
-		//	{
-		//		iLGenerator.Emit(OpCodes.Call, method as MethodInfo);
-		//	}
-		//	else
-		//	{
-		//		iLGenerator.Emit(OpCodes.Callvirt, method as MethodInfo);
-		//	}
-		//	Type type = method.IsConstructor ? method.DeclaringType : (method as MethodInfo).ReturnType;
-		//	if (type != typeof(void))
-		//	{
-		//		if (type.IsValueType)
-		//		{
-		//			iLGenerator.Emit(OpCodes.Box, type);
-		//		}
-		//	}
-		//	else
-		//	{
-		//		iLGenerator.Emit(OpCodes.Ldnull);
-		//	}
-		//	iLGenerator.Emit(OpCodes.Ret);
-		//	return (DynamicMethodDelegate)dynamicMethod.CreateDelegate(typeof(DynamicMethodDelegate));
-		//}
+		public static DynamicMethodDelegate CreateDelegate(MethodBase method)
+		{
+			ParameterInfo[] parameters = method.GetParameters();
+			int num = parameters.Length;
+			Type[] parameterTypes = new Type[2]
+			{
+				typeof(object),
+				typeof(object[])
+			};
+			DynamicMethod dynamicMethod = new DynamicMethod("", typeof(object), parameterTypes, typeof(ReflectionExtensions).Module, skipVisibility: true);
+			ILGenerator iLGenerator = dynamicMethod.GetILGenerator();
+			Label label = iLGenerator.DefineLabel();
+			iLGenerator.Emit(OpCodes.Ldarg_1);
+			iLGenerator.Emit(OpCodes.Ldlen);
+			iLGenerator.Emit(OpCodes.Ldc_I4, num);
+			iLGenerator.Emit(OpCodes.Beq, label);
+			iLGenerator.Emit(OpCodes.Newobj, typeof(TargetParameterCountException).GetConstructor(Type.EmptyTypes));
+			iLGenerator.Emit(OpCodes.Throw);
+			iLGenerator.MarkLabel(label);
+			if (!method.IsStatic && !method.IsConstructor)
+			{
+				iLGenerator.Emit(OpCodes.Ldarg_0);
+				if (method.DeclaringType.IsValueType)
+				{
+					iLGenerator.Emit(OpCodes.Unbox, method.DeclaringType);
+				}
+			}
+			for (int i = 0; i < num; i++)
+			{
+				iLGenerator.Emit(OpCodes.Ldarg_1);
+				iLGenerator.Emit(OpCodes.Ldc_I4, i);
+				iLGenerator.Emit(OpCodes.Ldelem_Ref);
+				Type parameterType = parameters[i].ParameterType;
+				if (parameterType.IsValueType)
+				{
+					iLGenerator.Emit(OpCodes.Unbox_Any, parameterType);
+				}
+			}
+			if (method.IsConstructor)
+			{
+				iLGenerator.Emit(OpCodes.Newobj, method as ConstructorInfo);
+			}
+			else if (method.IsFinal || !method.IsVirtual)
+			{
+				iLGenerator.Emit(OpCodes.Call, method as MethodInfo);
+			}
+			else
+			{
+				iLGenerator.Emit(OpCodes.Callvirt, method as MethodInfo);
+			}
+			Type type = method.IsConstructor ? method.DeclaringType : (method as MethodInfo).ReturnType;
+			if (type != typeof(void))
+			{
+				if (type.IsValueType)
+				{
+					iLGenerator.Emit(OpCodes.Box, type);
+				}
+			}
+			else
+			{
+				iLGenerator.Emit(OpCodes.Ldnull);
+			}
+			iLGenerator.Emit(OpCodes.Ret);
+			return (DynamicMethodDelegate)dynamicMethod.CreateDelegate(typeof(DynamicMethodDelegate));
+		}
 
-		//public static object Instantiate(Type type)
-		//{
-		//	if (type.IsValueType)
-		//	{
-		//		return Activator.CreateInstance(type);
-		//	}
-		//	if (type.IsArray)
-		//	{
-		//		return Array.CreateInstance(type.GetElementType(), 0);
-		//	}
-		//	DynamicMethodDelegate value;
-		//	lock (constructorCache)
-		//	{
-		//		if (!constructorCache.TryGetValue(type, out value))
-		//		{
-		//			value = CreateDelegate(type.GetConstructor(EmptyTypes));
-		//			constructorCache.Add(type, value);
-		//		}
-		//	}
-		//	return value(null);
-		//}
+		public static object Instantiate(Type type)
+		{
+			if (type.IsValueType)
+			{
+				return Activator.CreateInstance(type);
+			}
+			if (type.IsArray)
+			{
+				return Array.CreateInstance(type.GetElementType(), 0);
+			}
+			DynamicMethodDelegate value;
+			lock (constructorCache)
+			{
+				if (!constructorCache.TryGetValue(type, out value))
+				{
+					value = CreateDelegate(type.GetConstructor(EmptyTypes));
+					constructorCache.Add(type, value);
+				}
+			}
+			return value(null);
+		}
 
-		//public static DynamicMethodDelegate GetDelegate(MethodInfo info)
-		//{
-		//	lock (methodCache)
-		//	{
-		//		if (methodCache.TryGetValue(info, out DynamicMethodDelegate value))
-		//		{
-		//			return value;
-		//		}
-		//		value = CreateDelegate(info);
-		//		methodCache.Add(info, value);
-		//		return value;
-		//	}
-		//}
+		public static DynamicMethodDelegate GetDelegate(MethodInfo info)
+		{
+			lock (methodCache)
+			{
+				if (methodCache.TryGetValue(info, out DynamicMethodDelegate value))
+				{
+					return value;
+				}
+				value = CreateDelegate(info);
+				methodCache.Add(info, value);
+				return value;
+			}
+		}
 
-		//public static object InvokeMethod(MethodInfo info, object targetInstance, params object[] arguments)
-		//{
-		//	return GetDelegate(info)(targetInstance, arguments);
-		//}
+		public static object InvokeMethod(MethodInfo info, object targetInstance, params object[] arguments)
+		{
+			return GetDelegate(info)(targetInstance, arguments);
+		}
 
-		//public static object GetValue(PropertyInfo member, object instance)
-		//{
-		//	return InvokeMethod(member.GetGetMethod(nonPublic: true), instance);
-		//}
+		public static object GetValue(PropertyInfo member, object instance)
+		{
+			return InvokeMethod(member.GetGetMethod(nonPublic: true), instance);
+		}
 
 		public static object GetValue(MemberInfo member, object instance)
 		{
@@ -323,10 +358,10 @@ namespace System
 			throw new NotImplementedException();
 		}
 
-		//public static void SetValue(PropertyInfo member, object instance, object value)
-		//{
-		//	InvokeMethod(member.GetSetMethod(nonPublic: true), instance, value);
-		//}
+		public static void SetValue(PropertyInfo member, object instance, object value)
+		{
+			InvokeMethod(member.GetSetMethod(nonPublic: true), instance, value);
+		}
 
 		public static void SetValue(MemberInfo member, object instance, object value)
 		{

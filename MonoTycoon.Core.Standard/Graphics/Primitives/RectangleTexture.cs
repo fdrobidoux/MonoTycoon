@@ -19,15 +19,13 @@ namespace MonoTycoon.Graphics.Primitives
 
         public Texture2D Create()
         {
-            if (!Textures.ContainsKey(_color))
+            if (!Textures.TryGetValue(_color, out Texture2D texture))
             {
-                var data = new[] { _color };
-                var texture = new Texture2D(Game.GraphicsDevice, 1, 1);
-                texture.SetData(data);
+                texture = new Texture2D(Game.GraphicsDevice, 1, 1);
+                texture.SetData(new[] { _color });
                 Textures[_color] = texture;
             }
-
-            return Textures[_color];
+            return texture;
         }
     }
 }

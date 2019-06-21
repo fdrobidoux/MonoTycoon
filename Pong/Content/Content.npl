@@ -1,8 +1,8 @@
 {
   "content": {
     "textures": {
-      "path": "Textures/*.png",
-      "recursive": "True",
+      "path": "textures/*.*",
+      "recursive": "False",
       "action": "build",
       "importer": "TextureImporter",
       "processor": "TextureProcessor",
@@ -13,13 +13,39 @@
         "PremultiplyAlpha": "True",
         "ResizeToPowerOfTwo": "False",
         "MakeSquare": "False",
-        "TextureFormat": "Color",
+        "TextureFormat": "Color"
       }
     },
-    "specificFile": {
-      "path": "Path/To/File/specificFile.txt",
+    "sfx": {
+      "path": "sfx/*.wav",
       "recursive": "False",
-      "action": "copy"
+      "action": "build",
+      "importer": "WavImporter",
+      "processor": "SoundEffectProcessor",
+      "processorParam": {
+        "Quality": "Best"
+      }
+    },
+    "music": {
+      "path": "music/*.mp3",
+      "recursive": "False",
+      "action": "build",
+      "importer": "Mp3Importer",
+      "processor": "SongProcessor",
+      "processorParam": {
+        "Quality": "Medium"
+      }
+    },
+    "fonts": {
+      "path": "fonts/*.spritefont",
+      "recursive": "False",
+      "action": "build",
+      "importer": "FontDescriptionImporter",
+      "processor": "FontDescriptionProcessor",
+      "processorParam": {
+        "PremultiplyAlpha": "True",
+        "TextureFormat": "Compressed"
+      }
     }
   }
 }

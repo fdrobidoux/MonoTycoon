@@ -23,6 +23,7 @@ namespace Pong.Mechanics
                 RoundStateChanges?.Invoke(this, old);
             }
         }
+
         public ushort Number { get; set; }
         public Team ServingTeam { get; set; }
 
@@ -55,7 +56,7 @@ namespace Pong.Mechanics
 
 		void StateChanged(object sender, RoundState previous)
 		{
-
+			
 		}
 
 		internal void AssignMatch(Match match)

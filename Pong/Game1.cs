@@ -18,8 +18,7 @@ namespace Pong
         public static SpriteBatch SpriteBatch { get; private set; }
 
         // Services
-        Match Match { get; }
-        ScreenManager ScreenManager { get; }
+        public ScreenManager Screens { get; private set; }
 
         // Screens
         OngoingMatchScreen ongoingMatchScreen;
@@ -37,26 +36,25 @@ namespace Pong
             IsMouseVisible = true;
 
 			// Match Service
-			Match = new Match(this);
-			Match.UpdateOrder = (int)RootComponentOrder.MATCH;
-			Services.AddService<IMatch>(Match);
-            Components.Add(Match);
+			var _match = new Match(this);
+			_match.UpdateOrder = -1;
+			Services.AddService<IMatch>(_match);
+            Components.Add(_match);
 
             // ScreenManager Service
-            ScreenManager = new ScreenManager(this, ongoingMatchScreen = new OngoingMatchScreen(this));
-            Services.AddService<IScreenManager>(ScreenManager);
-            Components.Add(ScreenManager);
+            Screens = new ScreenManager(this, ongoingMatchScreen = new OngoingMatchScreen(this));
+            Services.AddService<IScreenManager>(Screens);
+            Components.Add(Screens);
         }
 
         protected override void Initialize()
         {
             base.Initialize();
-            if (!(ScreenManager.Peek() is StartGameScreen))
+			if (!(Screens.Peek() is StartGameScreen))
             {
                 startGameScreen = new StartGameScreen(this);
-                ScreenManager.Push(startGameScreen);
+                Screens.Push(startGameScreen);
             }
-			Debug.WriteLine("Hello");
         }
 
         protected override void LoadContent()

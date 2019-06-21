@@ -3,7 +3,7 @@ using System;
 
 namespace MonoTycoon.States
 {
-    public interface IStateSensitive<TSystem, TEnum>
+    public interface IStateSensitive<in TSystem, in TEnum>
         where TSystem : IGameComponent
         where TEnum : Enum
     {

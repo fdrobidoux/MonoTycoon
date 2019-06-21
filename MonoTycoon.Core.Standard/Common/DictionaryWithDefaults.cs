@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MonoTycoon.Common
+namespace MonoTycoon
 {
     public class DictionaryWithDefaults<TKey, TValue> : Dictionary<TKey, TValue>
     {

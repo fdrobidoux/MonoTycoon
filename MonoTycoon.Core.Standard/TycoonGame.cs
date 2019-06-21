@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using MonoTycoon.Structures;
 
 namespace MonoTycoon
 {
@@ -12,7 +13,12 @@ namespace MonoTycoon
             Common.GameHelper.Inject(this);
         }
 
-        protected override void Initialize()
+		internal static void LoadInjectables(TycoonGame game)
+		{
+			ServiceInjector.AddService(new );
+		}
+
+		protected override void Initialize()
         {
             // Initialize systems.
             base.Initialize();

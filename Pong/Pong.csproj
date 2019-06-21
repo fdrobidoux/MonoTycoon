@@ -14,7 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <TargetFrameworks>.NETFramework,Version=v4.7.2</TargetFrameworks>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -68,13 +69,6 @@
     <Compile Include="Screens\ComponentCollectionTestScreen.cs" />
     <Compile Include="Screens\OngoingMatchScreen.cs" />
     <Compile Include="Screens\StartGameScreen.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="MonoGame.Framework">
-      <HintPath>$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -155,19 +149,15 @@
     <Content Include="Content\textures\starfield.dds" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj">
-      <Project>{422a8d88-fa41-4ce2-bd51-24f05b504c06}</Project>
-      <Name>MonoTycoon.Core.Standard</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\NoPipeline\NoPipeline.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.-->
+       Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-  </Target>
-  <ProjectExtensions />
+  </Target>-->
 </Project>

@@ -119,7 +119,7 @@ namespace Pong.Mechanics
             {
                 CurrentRound = new Round(Game, RoundState.NotStarted, 1);
                 CurrentRound.Initialize();
-                State = MatchState.FindingFirstServer;
+				Game.Components.Add(CurrentRound);
             }
             else
             {

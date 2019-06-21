@@ -129,7 +129,8 @@ namespace MonoTycoon.Screens
             this.screens.Push(screen);
         }
 
-        public Screen Peek()
+		/// <inheritdoc />
+		public Screen Peek()
         {
             return this.screens.Count >= 1 ? this.screens.Peek() : null;
         }

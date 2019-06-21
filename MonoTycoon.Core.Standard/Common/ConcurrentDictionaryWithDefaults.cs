@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace MonoTycoon.Common
+namespace MonoTycoon
 {
     public class ConcurrentDictionaryWithDefaults<TKey, TValue> : ConcurrentDictionary<TKey, TValue>
     {

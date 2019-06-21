@@ -16,6 +16,7 @@
 
 	<ItemGroup Label="MonoGame">
 		<MonoGameContentReference Include="Content\Content.mgcb" />
+		<NPLContentReferences Include="Content\Content.npl" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -86,5 +87,7 @@
 		<ProjectReference Include="..\MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj" />
 	</ItemGroup>
 
-	<Import Project="$(MSBuildExtensionsPath)\NoPipeline\NoPipeline.targets" />
+	<Import Project="C:\Program Files (x86)\MSBuild\NoPipeline\NoPipeline.targets" />
+
+	<ProjectExtensions><VisualStudio><UserProperties content_4content_1npl__JsonSchema="http://json.schemastore.org/foxx-manifest" /></VisualStudio></ProjectExtensions>
 </Project>

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 
 namespace MonoTycoon.Extensions
 {
@@ -12,6 +10,11 @@ namespace MonoTycoon.Extensions
 		static EnumHelper()
 		{
 			_allFlagsCache = new Dictionary<Type, Enum>();
+		}
+
+		public static T AllFlags<T>(this T @this) where T : Enum
+		{
+			return AllFlags<T>();
 		}
 
 		public static T AllFlags<T>() where T : Enum
@@ -56,17 +59,17 @@ namespace MonoTycoon.Extensions
 		private static T SumBox<T>(T[] array, Func<T, T, T> fn)
 		{
 			T result = default;
-			array.
 			foreach (T num in array)
-			{
 				result = fn(num, result);
-			}
 			return result;
 		}
 
-		public static T Clear<T>(this T fruits, T flags) where T : struct
+		/// <summary>
+		/// TODO: Clear method.
+		/// </summary>
+		public static T Clear<T>(this Enum flags, Enum toClear) where T : struct
 		{
-			return fruits & (~flags);
+			throw new NotImplementedException();
 		}
 
 		private static void _validateIsEnum(Type type)
@@ -74,10 +77,5 @@ namespace MonoTycoon.Extensions
 			if (!type.IsEnum)
 				throw new ArgumentException("The type parameter T must be an enum type.");
 		}
-	}
-
-	public enum Enum2 : uint
-	{
-
 	}
 }

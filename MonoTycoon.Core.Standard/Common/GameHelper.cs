@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,9 +8,11 @@ namespace MonoTycoon
 {
     public class GameHelper
     {
-        protected static Game Game { get; private set; }
+        public static Game Game { get; private set; }
+		public static SpriteBatch WorldBatch { get; internal set; }
+		public static SpriteBatch UIBatch { get; internal set; }
 
-        internal static void Inject(Game game)
+		internal static void Inject(Game game)
             => Game = game;
     }
 }

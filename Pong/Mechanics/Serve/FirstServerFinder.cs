@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoTycoon;
-using MonoTycoon.Common;
 using MonoTycoon.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using System;

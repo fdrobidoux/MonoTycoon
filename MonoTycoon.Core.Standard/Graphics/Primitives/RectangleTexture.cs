@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoTycoon.Common;
+using MonoTycoon;
 
 namespace MonoTycoon.Graphics.Primitives
 {

@@ -34,20 +34,45 @@ namespace System.Reflection
 			constructorCache = new Dictionary<Type, DynamicMethodDelegate>();
 		}
 
-		public static void ClearMemberInfoCache(ClearFlag f)
+		public static void ClearCache(ClearFlag f)
 		{
-			if (f.HasFlag(ClearFlag.Properties)) propertyAttributeCache.Clear();
-			if (f.HasFlag(ClearFlag.FieldAttributes)) fieldAttributeCache.Clear();
-			if (f.HasFlag(ClearFlag.Constructors)) constructorCache.Clear();
-			if (f.HasFlag(ClearFlag.Methods)) methodCache.Clear();
-			if (f.HasFlag(ClearFlag.Properties)) propertyCache.Clear();
-			if (f.HasFlag(ClearFlag.PropertyAttributes)) propertyAttributeCache.Clear();
-			if (f.HasFlag(ClearFlag.Services)) serviceCache.Clear();
+			ClearCache(
+				typeAttributes: f.HasFlag(ClearFlag.TypeAttributes),
+				propertyAttributes: f.HasFlag(ClearFlag.PropertyAttributes),
+				fieldAttributes: f.HasFlag(ClearFlag.FieldAttributes),
+				properties: f.HasFlag(ClearFlag.Properties),
+				services: f.HasFlag(ClearFlag.Services),
+				methods: f.HasFlag(ClearFlag.Methods),
+				constructors: f.HasFlag(ClearFlag.Constructors)
+			);
+
+			/** Alternative :  
 			if (f.HasFlag(ClearFlag.TypeAttributes)) typeAttributeCache.Clear();
+			if (f.HasFlag(ClearFlag.PropertyAttributes)) propertyAttributeCache.Clear();
+			if (f.HasFlag(ClearFlag.FieldAttributes)) fieldAttributeCache.Clear();
+			if (f.HasFlag(ClearFlag.Properties)) propertyCache.Clear();
+			if (f.HasFlag(ClearFlag.Services)) serviceCache.Clear();
+			if (f.HasFlag(ClearFlag.Methods)) methodCache.Clear();
+			if (f.HasFlag(ClearFlag.Constructors)) constructorCache.Clear();
+			 */
 		}
 
+		public static void ClearCache(bool typeAttributes = false, bool propertyAttributes = false, bool fieldAttributes = false,
+									  bool properties = false, bool services = false, bool methods = false, bool constructors = false)
+		{
+			if (typeAttributes) typeAttributeCache.Clear();
+			if (propertyAttributes) propertyAttributeCache.Clear();
+			if (fieldAttributes) fieldAttributeCache.Clear();
+			if (properties) propertyCache.Clear();
+			if (services) serviceCache.Clear();
+			if (methods) methodCache.Clear();
+			if (constructors) constructorCache.Clear();
+		}
+
+		public static void ClearCache() => ClearCache(true, true, true, true, true, true, true);
+
 		[Flags]
-		public enum ClearFlag : ushort
+		public enum ClearFlag : short
 		{
 			TypeAttributes = 1,
 			PropertyAttributes = 2,
@@ -56,14 +81,6 @@ namespace System.Reflection
 			Services = 16,
 			Methods = 32,
 			Constructors = 64,
-		}
-
-		public static void ClearMemberInfoCache()
-		{
-			propertyAttributeCache.Clear();
-			fieldAttributeCache.Clear();
-			constructorCache.Clear();
-			methodCache.Clear();
 		}
 
 		public static T GetFirstAttribute<T>(this Type type) where T : Attribute, new()

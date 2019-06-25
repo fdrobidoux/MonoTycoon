@@ -39,7 +39,7 @@ namespace Pong.Screens
                 {
                     Manager.Pop();
                     _match.StartNewRound();
-                    this.Dispose();
+                    this.Enabled = false;
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace Pong.Screens
             var textSize = _textFont.MeasureString(TEXT_ENTER);
             var position = (Game.GraphicsDevice.Viewport.Bounds.Size.ToVector2() - textSize) / 2;
 
-            Game.GetSpriteBatch().DrawString(_textFont, TEXT_ENTER, position, Color.DarkRed, 0.0f, Vector2.Zero, 1, SpriteEffects.None, 0.0f);
+            Game.GetSpriteBatch().DrawString(_textFont, TEXT_ENTER, position, Color.DarkRed, 0.0f, Vector2.Zero, 1, SpriteEffects.None, 1.0f);
             
             base.Draw(gameTime);
         }

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using MonoTycoon.Common;
+using MonoTycoon;
 
 namespace Pong.Core
 {
-    public class ValueChangedEvent<T> where T : struct, IConvertible 
+    public class ValueChangedEvent<T> : EventArgs 
+		where T : struct, IConvertible
     {
         //private DictionaryWithDefaults<KeyValuePair<T, T>, bool> _hasChangedDict;
         
@@ -17,7 +18,10 @@ namespace Pong.Core
             Current = curr;
         }
 
-        public bool HasChangedFrom(T prev, T curr) 
+		public ValueChangedEvent() : base()
+		{ }
+
+		public bool HasChangedFrom(T prev, T curr) 
             => Was(prev) && IsNow(curr);
 
         public bool Was(T prev) 

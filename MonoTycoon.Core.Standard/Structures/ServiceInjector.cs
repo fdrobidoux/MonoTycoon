@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace MonoTycoon.Structures
@@ -71,7 +69,7 @@ namespace MonoTycoon.Structures
 
 		public static void InjectServices(Type staticType)
 		{
-			if (staticType as )
+			
 		}
 
 		public static Type[] GetTypesThatUseServiceInjection()
@@ -79,7 +77,7 @@ namespace MonoTycoon.Structures
 			var types = new List<Type>();
 
 			// Get the assemblies.
-			var assembly = Assembly.GetCallingAssembly().DefinedTypes
+			var assembly = Assembly.GetCallingAssembly().DefinedTypes;
 
 			return types.ToArray();
 		}

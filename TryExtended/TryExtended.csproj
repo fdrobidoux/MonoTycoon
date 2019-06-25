@@ -6,20 +6,20 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7EF5AA45-E916-4FB2-A013-4DE7AB32092B}</ProjectGuid>
+    <ProjectGuid>{CFEF067B-5977-4A1D-969C-71D870C67D41}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pong</RootNamespace>
-    <AssemblyName>Pong</AssemblyName>
+    <RootNamespace>TryExtended</RootNamespace>
+    <AssemblyName>TryExtended</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -42,32 +42,16 @@
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>Pong.Program</StartupObject>
-  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Components\AIController.cs" />
-    <Compile Include="Core\ValueChangedEvent.cs" />
-    <Compile Include="Entities\Ball.cs" />
-    <Compile Include="Entities\ColoredBlock.cs" />
-    <Compile Include="Entities\GUI\ScoreDisplay.cs" />
-    <Compile Include="Entities\Paddle.cs" />
-    <Compile Include="Extensions\EnumExtensions.cs" />
-    <Compile Include="Extensions\GameExtensions.cs" />
+    <Compile Include="Components\CameraController.cs" />
+    <Compile Include="Components\MovingCharacter.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="Mechanics\AI\AIAction.cs" />
-    <Compile Include="Mechanics\IMatchStateSensitive.cs" />
-    <Compile Include="Mechanics\IRoundStateSensitive.cs" />
-    <Compile Include="Mechanics\Match.cs" />
-    <Compile Include="Mechanics\Round.cs" />
-    <Compile Include="Mechanics\Serve\FirstServerFinder.cs" />
-    <Compile Include="Mechanics\Serve\ServeBallHandler.cs" />
-    <Compile Include="Mechanics\Team.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Screens\ComponentCollectionTestScreen.cs" />
-    <Compile Include="Screens\OngoingMatchScreen.cs" />
-    <Compile Include="Screens\StartGameScreen.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -121,37 +105,30 @@
     </None>
     <None Include="app.config" />
     <None Include="app.manifest" />
-    <None Include="Content\fonts\Arial.spritefont" />
-    <None Include="Content\fonts\Hachicro12.spritefont" />
-    <None Include="Content\fonts\src\hachicro.TTF" />
     <None Include="Content\Content.npl" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\music\music.mp3" />
-    <Content Include="Content\sfx\ai_scores.wav" />
-    <Content Include="Content\sfx\ai_wins.wav" />
-    <Content Include="Content\sfx\blue_hit.wav" />
-    <Content Include="Content\sfx\firstserver_chosen.wav" />
-    <Content Include="Content\sfx\firstserver_switch.wav" />
-    <Content Include="Content\sfx\player_scores.wav" />
-    <Content Include="Content\sfx\player_win.wav" />
-    <Content Include="Content\sfx\pressed_start.wav" />
-    <Content Include="Content\sfx\red_hit.wav" />
-    <Content Include="Content\sfx\wall_hit_1.wav" />
-    <Content Include="Content\sfx\wall_hit_2.wav" />
-    <Content Include="Content\sfx\wall_hit_3.wav" />
-    <Content Include="Content\textures\ball.png" />
-    <Content Include="Content\textures\paddle-left.png" />
-    <Content Include="Content\textures\paddle-middle.png" />
-    <Content Include="Content\textures\paddle-right.png" />
-    <Content Include="Content\textures\ship.jpg" />
-    <Content Include="Content\textures\starfield.dds" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.7.1.189" />
+    <Content Include="Content\textures\speechless sonic.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Extended">
+      <Version>1.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="MonoGame.Extended.Content.Pipeline">
+      <Version>1.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="MonoGame.Extended.Graphics">
+      <Version>1.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="MonoGame.Framework.DesktopGL">
+      <Version>3.6.0.1625</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>9.0.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\NoPipeline\NoPipeline.targets" />
@@ -161,5 +138,6 @@
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
-  </Target>-->
+  </Target>
+  -->
 </Project>

@@ -1,10 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using MonoTycoon.Common;
+using MonoTycoon;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Pong.Core;
+using Pong;
 using Pong.Entities;
 
 namespace Pong.Mechanics.Serve

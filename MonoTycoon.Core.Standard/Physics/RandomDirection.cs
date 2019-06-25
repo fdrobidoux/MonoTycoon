@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using MonoTycoon.Common;
+using MonoTycoon;
 
 namespace MonoTycoon.Physics
 {

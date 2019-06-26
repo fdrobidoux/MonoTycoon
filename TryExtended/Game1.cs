@@ -16,8 +16,7 @@ namespace TryExtended
 		GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
-		private CameraController cameraController;
-		private Vector2 camUnderflowVec2;
+		CameraController cameraController;
 
 		public Game1()
 		{

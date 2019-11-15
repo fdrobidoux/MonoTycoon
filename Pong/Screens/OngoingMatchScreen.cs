@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using MonoTycoon.Screens;
+using MonoTycoon.States;
 using Pong.Entities;
 using Pong.Entities.GUI;
 using Pong.Mechanics;
@@ -11,7 +12,7 @@ using Pong.Mechanics.Serve;
 
 namespace Pong.Screens
 {
-    public class OngoingMatchScreen : Screen
+    public class OngoingMatchScreen : Screen, IMatchStateSensitive, IRoundStateSensitive
     {
 #if DEBUG
         SpriteFont debugFont;
@@ -20,13 +21,13 @@ namespace Pong.Screens
         Paddle PlayerPaddle { get; set; }
         Paddle AiPaddle { get; set; }
         Ball Ball { get; set; }
-        ScoreDisplay ScoreDisplay { get; set; }
+        public ScoreDisplay ScoreDisplay { get; private set; }
 
         IMatch _match;
         IRound _round => _match.CurrentRound;
 
         public ServeBallHandler ServeBallHandler { get; private set; }
-        FirstServerFinder FirstServerFinder { get; set; }
+        public FirstServerFinder FirstServerFinder { get; private set; }
 
         Song music;
 
@@ -34,24 +35,24 @@ namespace Pong.Screens
         {
             Translucent = false;
 
-            Components.Add(Ball = new Ball(game));
-            Components.Add(AiPaddle = new Paddle(game, Team.Red));
-            Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
-            Components.Add(ScoreDisplay = new ScoreDisplay(game));
-            Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
-            Components.Add(ServeBallHandler = new ServeBallHandler(Game));
+            Game.Components.Add(Ball = new Ball(game));
+            Game.Components.Add(AiPaddle = new Paddle(game, Team.Red));
+            Game.Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
+            Game.Components.Add(ScoreDisplay = new ScoreDisplay(game));
+            Game.Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
+            Game.Components.Add(ServeBallHandler = new ServeBallHandler(Game));
 			
-			updateActions.Add((x) => {
-				if (!(x is IMatchStateSensitive sensitiveToMatchStateComp))
-					return;
-			});
+			//updateActions.Add((x) => {
+			//	if (!(x is IMatchStateSensitive sensitiveToMatchStateComp))
+			//		return;
+			//});
 		}
 
         public override void Initialize()
         {
             _match = Game.Services.GetService<IMatch>();
-			_match.MatchStateChanges += OnMatchStateChanged;
-
+			_match.StateChanges += StateChanged;
+            
             base.Initialize();
         }
 
@@ -62,21 +63,18 @@ namespace Pong.Screens
 #endif
             music = Game.Content.Load<Song>("music/music");
 		}
-
-
-		/// <summary>
+        
+        /// <summary>
 		/// MATCH EVENTS
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		public void OnMatchStateChanged(object sender, MatchState previous)
+        public void StateChanged(IMachineStateComponent<MatchState> component, MatchState previous)
         {
-			if (!(sender is IMatch match))
-				return;
-
-            if (match.State == MatchState.FindingFirstServer)
+            if (_match.State == MatchState.InstanciatedRound)
             {
-                match.CurrentRound.RoundStateChanges += onRoundStateChanges;
+                _match.CurrentRound.StateChanges += StateChanged;
+            }
+            else if (_match.State == MatchState.FindingFirstServer)
+            {
                 MediaPlayer.Volume = 0.5f;
                 MediaPlayer.Play(music);
             }
@@ -85,16 +83,11 @@ namespace Pong.Screens
         /// <summary>
         /// ROUND EVENTS
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void onRoundStateChanges(object sender, RoundState previous)
+        public void StateChanged(IMachineStateComponent<RoundState> component, RoundState previous)
         {
-            if (!(sender is IRound round))
-                return;
-
-            if (round.State.Equals(RoundState.WaitingForBallServe))
+            if (_round.State.Equals(RoundState.WaitingForBallServe))
             {
-                Paddle servingPaddle = Components.OfType<Paddle>().Where((x) => x.Team == round.ServingTeam).Single();
+                Paddle servingPaddle = Components.OfType<Paddle>().Where((x) => x.Team == _round.ServingTeam).Single();
                 ServeBallHandler.AssignRequiredEntities(Ball, servingPaddle);
             }
             else if (previous.Equals(RoundState.WaitingForBallServe))
@@ -102,11 +95,6 @@ namespace Pong.Screens
                 ServeBallHandler.FreeRequiredEntities();
             }
         }
-
-		public override void Update(GameTime gameTime)
-		{
-			base.Update(gameTime);
-		}
 
 		public override void Draw(GameTime gt)
         {

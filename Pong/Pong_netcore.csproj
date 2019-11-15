@@ -3,8 +3,9 @@
 	<PropertyGroup>
 		<AssemblyName>Pong</AssemblyName>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>netcoreapp2.2</TargetFramework>
+		<TargetFramework>netcoreapp3.0</TargetFramework>
 		<StartupObject>Pong.Program</StartupObject>
+    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -19,6 +20,17 @@
 		<NPLContentReferences Include="Content\Content.npl" />
 	</ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\libs\DesktopGL\netstandard2.0\x86\*.*" Visible="false">
+      <Link>x86\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\libs\DesktopGL\netstandard2.0\x64\*.*" Visible="false">
+      <Link>x64\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 	<ItemGroup>
 	  <Compile Remove="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
@@ -27,64 +39,28 @@
 	  <Compile Remove="Properties\AssemblyInfo.cs" />
 	  <None Remove="app.config" />
 	  <None Remove="app.manifest" />
-	  <!--<None Remove="Content\Content.mgcb" />
-	  <None Remove="Content\music\music.mp3" />
-	  <None Remove="Content\sfx\ai_scores.wav" />
-	  <None Remove="Content\sfx\ai_wins.wav" />
-	  <None Remove="Content\sfx\blue_hit.wav" />
-	  <None Remove="Content\sfx\firstserver_chosen.wav" />
-	  <None Remove="Content\sfx\firstserver_switch.wav" />
-	  <None Remove="Content\sfx\player_scores.wav" />
-	  <None Remove="Content\sfx\player_win.wav" />
-	  <None Remove="Content\sfx\pressed_start.wav" />
-	  <None Remove="Content\sfx\red_hit.wav" />
-	  <None Remove="Content\sfx\wall_hit_1.wav" />
-	  <None Remove="Content\sfx\wall_hit_2.wav" />
-	  <None Remove="Content\sfx\wall_hit_3.wav" />
-	  <None Remove="Content\textures\ball.png" />
-	  <None Remove="Content\textures\paddle-left.png" />
-	  <None Remove="Content\textures\paddle-middle.png" />
-	  <None Remove="Content\textures\paddle-right.png" />
-	  <None Remove="Content\textures\ship.jpg" />
-	  <None Remove="Content\textures\starfield.dds" />-->
 	  <None Remove="Content\bin\**" />
 	  <None Remove="Content\obj\**" />
 	  <None Remove="Icon.bmp" />
 	  <None Remove="Properties\launchSettings.json" />
 	</ItemGroup>
 	
-	<!-- <ItemGroup>
-	  <Content Include="Content\sfx\ai_scores.wav" />
-	  <Content Include="Content\sfx\ai_wins.wav" />
-	  <Content Include="Content\sfx\blue_hit.wav" />
-	  <Content Include="Content\sfx\firstserver_chosen.wav" />
-	  <Content Include="Content\sfx\firstserver_switch.wav" />
-	  <Content Include="Content\sfx\player_scores.wav" />
-	  <Content Include="Content\sfx\player_win.wav" />
-	  <Content Include="Content\sfx\pressed_start.wav" />
-	  <Content Include="Content\sfx\red_hit.wav" />
-	  <Content Include="Content\sfx\wall_hit_1.wav" />
-	  <Content Include="Content\sfx\wall_hit_2.wav" />
-	  <Content Include="Content\sfx\wall_hit_3.wav" />
-	  <Content Include="Content\textures\ball.png" />
-	  <Content Include="Content\textures\paddle-left.png" />
-	  <Content Include="Content\textures\paddle-middle.png" />
-	  <Content Include="Content\textures\paddle-right.png" />
-	  <Content Include="Content\textures\ship.jpg" />
-	  <Content Include="Content\textures\starfield.dds" />
-	</ItemGroup> -->
-	
 	<ItemGroup>
 		<PackageReference Include="MonoGame.Content.Builder" Version="3.7.0.9" />
-		<PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.7.0.7" />
 		<PackageReference Include="NSubsys" Version="1.0.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-
+	
 	<ItemGroup>
-		<ProjectReference Include="..\MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj" />
+	  <ProjectReference Include="..\..\..\common\MonoTycoon.Core.Standard\MonoTycoon.Core.Standard.csproj" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Reference Include="MonoGame.Framework">
+	    <HintPath>..\..\..\github\MonoGame\MonoGame.Framework\bin\DesktopGL\Debug\netstandard2.0\MonoGame.Framework.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 	<Import Project="C:\Program Files (x86)\MSBuild\NoPipeline\NoPipeline.targets" />

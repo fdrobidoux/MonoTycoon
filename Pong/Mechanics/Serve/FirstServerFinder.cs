@@ -1,15 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoTycoon;
+using MonoTycoon.Extensions;
 using MonoTycoon.Graphics;
 using Microsoft.Xna.Framework.Audio;
 using System;
 using Pong.Core;
 using Pong.Entities;
+using MonoTycoon.States;
 
 namespace Pong.Mechanics.Serve
 {
-    public class FirstServerFinder : DrawableGameComponent
+    public class FirstServerFinder : DrawableGameComponent, IMatchStateSensitive
     {
         private Ball TheBall;
         private Team currentTeam;
@@ -33,30 +35,20 @@ namespace Pong.Mechanics.Serve
         public FirstServerFinder(Game game, Ball ball) : base(game)
         {
             TheBall = ball;
-            timerSwitcharooDo = new TimerTask(AlternateBallPosition, 33, true);
-            timerEndSwitcharoo = new TimerTask(onEndSwitcharoo, int.MaxValue, false);
-            timerEndScaling =
-                new TimerTask(finalizeFindingFirstServer, TimeSpan.FromSeconds(2).TotalMilliseconds, false);
+            timerSwitcharooDo = new TimerTask(AlternateBallPosition, 33, true) { Enabled = false } ;
+            timerEndSwitcharoo = new TimerTask(onEndSwitcharoo, int.MaxValue, false) { Enabled = false };
+            timerEndScaling = new TimerTask(finalizeFindingFirstServer, 2000, false) { Enabled = false };
         }
 
         public override void Initialize()
         {
-            base.Initialize();
-
             IMatch _match = Game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += OnMatchStateChanges;
-
-            currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
-
-            timerSwitcharooDo.Reset(modEnabled: true);
-            timerEndSwitcharoo.Reset(true);
-            timerEndSwitcharoo.IntervalMs = TimeSpan.FromMilliseconds(new Random().Next(2000, 3001)).TotalMilliseconds;
-            timerEndScaling.Reset(false);
+            _match.StateChanges += StateChanged;
 
             TheBall.Transform.Scale = 1f;
-
-            Enabled = false;
             Visible = false;
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
@@ -65,25 +57,36 @@ namespace Pong.Mechanics.Serve
             sfx_Chosen = Game.Content.Load<SoundEffect>("sfx/firstserver_chosen");
         }
 
-        /// <summary>
-        /// MATCH EVENTS
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="previous"></param>
-        private void OnMatchStateChanges(object sender, MatchState previous)
+        public void StateChanged(IMachineStateComponent<RoundState> round, RoundState previousState)
         {
-            if (!(sender is IMatch match))
-                return;
-
-            if (match.State == MatchState.FindingFirstServer)
+            if (round.State != RoundState.NotStarted)
             {
-                match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
-                Enabled = true;
-                Visible = true;
+                Enabled = false;
+                Visible = false;
             }
-            else if (previous == MatchState.FindingFirstServer)
+        }
+
+        public void StateChanged(IMachineStateComponent<MatchState> sender, MatchState previousState)
+        {
+            if (!(sender is IMatch match)) return;
+
+            if (match.State == MatchState.InstanciatedRound)
             {
-                match.CurrentRound.RoundStateChanges -= OnRoundStateChanges;
+                Enabled = true;
+                match.CurrentRound.StateChanges += StateChanged;
+            }
+            else if (match.State == MatchState.FindingFirstServer)
+            {
+                Visible = true;
+                currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
+                timerSwitcharooDo.Reset(true);
+                timerEndSwitcharoo.IntervalMs = TimeSpan.FromMilliseconds(new Random().Next(2000, 3001)).TotalMilliseconds;
+                timerEndSwitcharoo.Reset(true);
+                timerEndScaling.Reset(false);
+            }
+            else if (previousState == MatchState.FindingFirstServer)
+            {
+                match.CurrentRound.StateChanges -= StateChanged;
             }
         }
 
@@ -94,8 +97,7 @@ namespace Pong.Mechanics.Serve
         /// <param name="previous"></param>
         private void OnRoundStateChanges(object sender, RoundState e)
         {
-            if (!(sender is IRound round))
-                return;
+            if (!(sender is IRound round)) return;
 
             if (round.State != RoundState.NotStarted)
             {
@@ -104,10 +106,6 @@ namespace Pong.Mechanics.Serve
             }
         }
 
-        /// <summary>
-        /// Update method.
-        /// </summary>
-        /// <param name="gt"></param>
         public override void Update(GameTime gt)
         {
             timerSwitcharooDo.Update(gt);
@@ -141,10 +139,11 @@ namespace Pong.Mechanics.Serve
 
         private void finalizeFindingFirstServer()
         {
-            Match match = (Match) Game.Services.GetService<IMatch>();
+            IMatch match = Game.Services.GetService<IMatch>();
 
             // Remove visibility.
             Visible = false;
+            Enabled = false;
 
             timerEndScaling.Enabled = false;
 
@@ -158,10 +157,6 @@ namespace Pong.Mechanics.Serve
             match.CurrentRound.State = RoundState.WaitingForBallServe;
         }
 
-        /// <summary>
-        /// Draw method.
-        /// </summary>
-        /// <param name="gt"></param>
         public override void Draw(GameTime gt)
         {
             if (timerEndScaling.Enabled)

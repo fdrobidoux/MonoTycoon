@@ -4,30 +4,16 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Pong.Core;
+using MonoTycoon.States;
 
 namespace Pong.Mechanics
 {
-    public class Round : GameComponent, IRound
+    public class Round : MachineStateComponent<RoundState>, IRound
     {
-		Match _assignedMatch;
+		IMatch _assignedMatch;
 
-		RoundState _state;
-		public RoundState State
-        {
-            get => _state;
-            set
-            {
-                if (value == _state) return;
-                RoundState old = _state;
-                _state = value;
-                RoundStateChanges?.Invoke(this, old);
-            }
-        }
-
-        public ushort Number { get; set; }
+        public int Number { get; set; }
         public Team ServingTeam { get; set; }
-
-        public event EventHandler<RoundState> RoundStateChanges;
 
 		/// <summary>
 		/// Constructor.
@@ -42,24 +28,7 @@ namespace Pong.Mechanics
             Number = number;
         }
 
-        public override void Initialize()
-        {
-			RoundStateChanges = null;
-			RoundStateChanges += StateChanged;
-        }
-
-		public new void Dispose()
-        {
-            RoundStateChanges = null;
-            base.Dispose();
-		}
-
-		void StateChanged(object sender, RoundState previous)
-		{
-			
-		}
-
-		internal void AssignMatch(Match match)
+        internal void AssignMatch(IMatch match)
 		{
 			_assignedMatch = match;
 		}
@@ -68,14 +37,18 @@ namespace Pong.Mechanics
 		{
 			_assignedMatch = null;
 		}
-	}
 
-    public interface IRound : IGameComponent, IUpdateable, IDisposable
+        #region "Implementation of `MachineStateComponent<MatchState>`"
+
+        public override Type GetSensitivityType() => typeof(IRoundStateSensitive);
+
+        #endregion
+    }
+
+    public interface IRound : IMachineStateComponent<RoundState>
     {
-        RoundState State { get; set; }
-        ushort Number { get; }
+        int Number { get; }
         Team ServingTeam { get; set; }
-        event EventHandler<RoundState> RoundStateChanges;
     }
 
     public enum RoundState : byte

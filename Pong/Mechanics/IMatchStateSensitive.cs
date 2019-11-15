@@ -1,12 +1,11 @@
 ﻿using MonoTycoon.States;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Pong.Mechanics
 {
-	public interface IMatchStateSensitive : IStateSensitive<IMatch, MatchState>
+	public interface IMatchStateSensitive : IStateSensitive<MatchState>
 	{
-		
+        //void StateChanged(IMatch match, MatchState previousState);
+        //void IStateSensitive<MatchState>.StateChanged(IMachineStateComponent<MatchState> component, MatchState previousState)
+        //    => StateChanged((IMatch)component, previousState);
 	}
 }

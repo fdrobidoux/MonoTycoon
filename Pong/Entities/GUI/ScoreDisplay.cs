@@ -4,14 +4,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Pong.Mechanics;
 using MonoTycoon.Graphics;
 using Pong.Core;
+using MonoTycoon.States;
 
 namespace Pong.Entities.GUI
 {
-    public class ScoreDisplay : DrawableGameComponent
+    public class ScoreDisplay : DrawableGameComponent, IMatchStateSensitive
     {
         private SpriteFont _font;
         private IMatch _match;
-        private const String STR_FORMAT = "Team {0}: {1}";
+        private const string STR_FORMAT = "Team {0}: {1}";
 
         public ScoreDisplay(Game game) : base(game)
         {
@@ -19,9 +20,11 @@ namespace Pong.Entities.GUI
 
         public override void Initialize()
         {
-            base.Initialize();
             _match = Game.Services.GetService<IMatch>();
-            _match.MatchStateChanges += OnMatchStateChanges;
+            _match.StateChanges += StateChanged;
+            ;
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
@@ -30,19 +33,6 @@ namespace Pong.Entities.GUI
         }
 
         private readonly MatchState[] STATES_WHEN_DISABLED = { MatchState.NotStarted, MatchState.DemoMode };
-        
-        private void OnMatchStateChanges(object sender, MatchState previous)
-        {
-            if (!(sender is IMatch match))
-                return; 
-            
-            Enabled = (!match.State.Any(STATES_WHEN_DISABLED));
-        }
-
-        public override void Update(GameTime gt)
-        {
-            base.Update(gt);
-        }
 
         private string GenerateTeamText(Team team)
         {
@@ -74,6 +64,11 @@ namespace Pong.Entities.GUI
 
                 sb.DrawString(_font, GenerateTeamText(team), position, team.ToColor());
             }
+        }
+
+        public void StateChanged(IMachineStateComponent<MatchState> match, MatchState previousState)
+        {
+            Enabled = (!match.State.Any(STATES_WHEN_DISABLED));
         }
     }
 }

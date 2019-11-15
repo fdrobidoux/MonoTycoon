@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoTycoon.Graphics.Primitives;
 using MonoTycoon.Physics;
+using MonoTycoon.States;
 using Pong.Mechanics;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Pong.Entities
         public Transform2 Transform { get; set; }
 
         public float velocity;
-        Vector2 direction;
+        public Vector2 direction;
 
         public Texture2D colorTexture;
 
@@ -27,7 +28,7 @@ namespace Pong.Entities
             base.Initialize();
 
             IMatch match = Game.Services.GetService<IMatch>();
-            match.MatchStateChanges += Match_MatchStateChanges;
+            match.StateChanges += Match_MatchStateChanges;
 
             velocity = 50;
             var direction = new Vector2(-20, 50);
@@ -37,18 +38,9 @@ namespace Pong.Entities
             Transform.Location = (Game.GraphicsDevice.Viewport.Bounds.Location - (Transform.Size / 2)).ToVector2();
         }
 
-        private void Match_MatchStateChanges(object sender, MatchState previous)
+        private void Match_MatchStateChanges(IMachineStateComponent<MatchState> component, MatchState previous)
         {
-            if (!(sender is IMatch match))
-                return;
-
-            Enabled = Visible = match.State.Equals(MatchState.NotStarted);
-        }
-
-        private void whenRoundStateChanges(object sender, Core.ValueChangedEvent<RoundState> e)
-        {
-            if (!(sender is IMatch match))
-                return;
+            if (!(component is IMatch match)) return;
 
             Enabled = Visible = match.State.Equals(MatchState.NotStarted);
         }

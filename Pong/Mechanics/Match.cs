@@ -2,27 +2,12 @@ using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoTycoon.States;
 
 namespace Pong.Mechanics
 {
-    public class Match : GameComponent, IMatch
+    public class Match : MachineStateComponent<MatchState>, IMatch
     {
-        MatchState _state;
-        public MatchState State
-        {
-            get => _state;
-            set
-            {
-                if (value == _state) return;
-                MatchState previous = _state;
-                _state = value;
-				_hasChanged = true;
-				MatchStateChanges?.Invoke(this, previous);
-            }
-        }
-
-		bool _hasChanged;
-
         int _scoreBlue;
         public int ScoreBlue
         {
@@ -66,34 +51,45 @@ namespace Pong.Mechanics
 		IRound IMatch.CurrentRound => CurrentRound;
 
         public event EventHandler<Team> TeamScores;
-        public event EventHandler<MatchState> MatchStateChanges;
 
         public Match(Game game) : base(game)
         {
+            
         }
+
+        #region "Implementation of `GameComponent`"
 
         public override void Initialize()
         {
-			_hasChanged = false;
+            base.Initialize();
             _scoreBlue = 0;
             _scoreRed = 0;
-			MatchStateChanges = null;
-			MatchStateChanges += OnMatchStateChanges;
 		}
 
-		public override void Update(GameTime gameTime)
-		{
-			resetStateChangedFlag();
-		}
+        #endregion
 
-		private void resetStateChangedFlag()
-		{
-			_hasChanged = false;
-		}
+        #region "Implementation of `IRoundStateSensitive`"
 
-		#region "Unique To `Match`"
+        public void StateChanged(IMachineStateComponent<RoundState> round, RoundState previousState)
+        {
+            
+        }
 
-		public void AddOnePointTo(Team team)
+        #endregion
+
+        #region "Implementation of `MachineStateComponent<MatchState>`"
+
+        public override Type GetSensitivityType() => typeof(IMatchStateSensitive);
+
+        protected override void WhenOwnStateChanges(MatchState previous)
+        {
+            base.WhenOwnStateChanges(previous);
+            // TODO: Code this.
+        }
+
+        #endregion
+        
+        public void AddOnePointTo(Team team)
         {
             switch (team)
             {
@@ -115,11 +111,12 @@ namespace Pong.Mechanics
 
         public IRound StartNewRound()
         {
-            if (CurrentRound == null || State == MatchState.Finished)
+            if (CurrentRound == null)
             {
                 CurrentRound = new Round(Game, RoundState.NotStarted, 1);
                 CurrentRound.Initialize();
 				Game.Components.Add(CurrentRound);
+                this.State = MatchState.InstanciatedRound;
             }
             else
             {
@@ -129,25 +126,14 @@ namespace Pong.Mechanics
 
             return CurrentRound;
         }
-
-        void OnMatchStateChanges(object sender, MatchState previous)
-        {
-            
-        }
-
-        #endregion
     }
 
-    public interface IMatch : IGameComponent
+    public interface IMatch : IMachineStateComponent<MatchState>, IRoundStateSensitive
     {
-        MatchState State { get; set; }
+        event EventHandler<Team> TeamScores;
         int ScoreBlue { get; }
         int ScoreRed { get; }
         IRound CurrentRound { get; }
-        
-        event EventHandler<Team> TeamScores;
-        event EventHandler<MatchState> MatchStateChanges;
-
         void AddOnePointTo(Team team);
         int GetScore(Team team);
         IRound StartNewRound();

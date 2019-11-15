@@ -36,8 +36,7 @@ namespace Pong
             IsMouseVisible = true;
 
 			// Match Service
-			var _match = new Match(this);
-			_match.UpdateOrder = -1;
+			var _match = new Match(this) { UpdateOrder = -1 };
 			Services.AddService<IMatch>(_match);
             Components.Add(_match);
 
@@ -49,17 +48,20 @@ namespace Pong
 
         protected override void Initialize()
         {
-            base.Initialize();
 			if (!(Screens.Peek() is StartGameScreen))
             {
                 startGameScreen = new StartGameScreen(this);
                 Screens.Push(startGameScreen);
             }
+
+            base.Initialize();
         }
 
         protected override void LoadContent()
         {
             Services.AddService(SpriteBatch = new SpriteBatch(graphics.GraphicsDevice));
+
+            base.LoadContent();
         }
 
         protected override void Update(GameTime gameTime)
@@ -78,7 +80,9 @@ namespace Pong
             GraphicsDevice.Clear(Color.White);
 
             SpriteBatch.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.AnisotropicWrap, sortMode: SpriteSortMode.Immediate);
+
             base.Draw(gameTime);
+
             SpriteBatch.End();
         }
 

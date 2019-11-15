@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using Pong;
 using Pong.Entities;
+using MonoTycoon.States;
 
 namespace Pong.Mechanics.Serve
 {
-    public class ServeBallHandler : GameComponent
+    public class ServeBallHandler : GameComponent, IMatchStateSensitive, IRoundStateSensitive
     {
         private const int SECONDS_TIL_CAN_SERVE = 3;
 
@@ -31,7 +32,7 @@ namespace Pong.Mechanics.Serve
             Enabled = false;
 
             IMatch match = Game.Services.GetService<IMatch>();
-            match.MatchStateChanges += OnMatchStateChanges;
+            match.StateChanges += StateChanged;
 
             timer_AllowServing.Reset();
             timer_AllowServing.Enabled = true;
@@ -39,19 +40,18 @@ namespace Pong.Mechanics.Serve
             canServe = false;
         }
 
-        private void OnMatchStateChanges(object sender, MatchState previous)
+        public void StateChanged(IMachineStateComponent<MatchState> component, MatchState previousState)
         {
-            if (!(sender is IMatch match))
-                return;
+            if (!(component is IMatch match)) return;
 
-            if (match.State == MatchState.FindingFirstServer)
-                match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
+            if (match.State == MatchState.InstanciatedRound)
+                match.CurrentRound.StateChanges += StateChanged;
         }
 
-        private void OnRoundStateChanges(object sender, RoundState previous)
+        public void StateChanged(IMachineStateComponent<RoundState> component, RoundState previous)
         {
-			if (!(sender is IRound round))
-				return;
+			//if (!(sender is IRound round)) return;
+            var round = component;
 
 			Enabled = round.State.Equals(RoundState.WaitingForBallServe);
         }

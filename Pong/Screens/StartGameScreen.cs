@@ -42,6 +42,8 @@ namespace Pong.Screens
                     this.Enabled = false;
                 }
             }
+
+            base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)

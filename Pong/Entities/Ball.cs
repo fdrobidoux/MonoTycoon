@@ -18,7 +18,7 @@ namespace Pong.Entities
 		public Transform2 Transform { get; set; }
 
 		public double Velocity = STARTING_VELOCITY;
-		public Vector2 Direction = Vector2.UnitX;
+		public Vector2 Direction { get; set; } = Vector2.UnitX;
 
 		public Texture2D Sprite;
 
@@ -39,7 +39,8 @@ namespace Pong.Entities
 			Transform = new Transform2(Vector2.Zero, new Size2(50, 50), 1f);
 
 			Velocity = STARTING_VELOCITY;
-			Direction = new Vector2(0.35f, 0.65f);
+			Direction = new Vector2(1, 2);
+            Direction.Normalize();
 
 			Enabled = false;
 			Visible = false;
@@ -57,23 +58,6 @@ namespace Pong.Entities
 				theSfx.Add(Game.Content.Load<SoundEffect>(string.Format(SFX_WALLHIT_BASE, i)));
 			}
 			sfxGroup_WallHit = theSfx.ToArray();
-		}
-
-		public void StateChanged(IMatch match, MatchState previousState)
-		{
-			Visible = match.State.Any(MatchState.FindingFirstServer, MatchState.InProgress);
-		}
-
-		public void StateChanged(IRound round, RoundState previous)
-		{
-			Visible = !round.State.Equals(RoundState.NotStarted);
-			Enabled = round.State.Equals(RoundState.InProgress);
-
-			if (round.State.Equals(RoundState.WaitingForBallServe))
-			{
-				Transform.Scale = 1f;
-				Visible = true;
-			}
 		}
 
 		public override void Update(GameTime gt)
@@ -149,5 +133,26 @@ namespace Pong.Entities
 			rect.Location -= rect.Size.DivideBy(2);
 			return rect;
 		}
-	}
+
+        public void StateChanged(IMachineStateComponent<MatchState> component, MatchState previousState)
+        {
+            if (!(component is Match match)) return;
+
+            Visible = match.State.Any(MatchState.FindingFirstServer, MatchState.InProgress);
+        }
+
+        public void StateChanged(IMachineStateComponent<RoundState> component, RoundState previousState)
+        {
+            if (!(component is IRound round)) return;
+
+            Visible = !round.State.Equals(RoundState.NotStarted);
+			Enabled = round.State.Equals(RoundState.InProgress);
+
+			if (round.State.Equals(RoundState.WaitingForBallServe))
+			{
+				Transform.Scale = 1f;
+				Visible = true;
+			}
+        }
+    }
 }

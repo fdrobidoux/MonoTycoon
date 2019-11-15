@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoTycoon;
 using MonoTycoon.Physics;
+using MonoTycoon.States;
 using Pong.Core;
 using Pong.Mechanics;
 
@@ -26,14 +27,12 @@ namespace Pong.Entities
 
         public override void Initialize()
         {
-            base.Initialize(); // Will call `LoadContent()`;
-
             IMatch match = Game.Services.GetService<IMatch>();
-            match.MatchStateChanges += OnMatchStateChanges;
+            match.StateChanges += OnMatchStateChanges;
 
             IRound round = match.CurrentRound;
             if (round != null)
-                round.RoundStateChanges += OnRoundStateChanges;
+                round.StateChanges += OnRoundStateChanges;
 
             Transform.Size = new Size2(50, 100);
 
@@ -54,24 +53,26 @@ namespace Pong.Entities
 
             Visible = true;
             Enabled = true;
+
+            base.Initialize(); // Will call `LoadContent()`;
         }
 
-        private void OnMatchStateChanges(object sender, MatchState previous)
+        private void OnMatchStateChanges(IMachineStateComponent<MatchState> component, MatchState previous)
         {
-            if (!(sender is IMatch match))
+            if (!(component is IMatch match))
                 return;
 
             //_moving = (e.Modified.Any(MatchState.InProgress, MatchState.DemoMode));
 
-            if (match.State  == MatchState.FindingFirstServer)
+            if (match.State == MatchState.FindingFirstServer)
             {
-                match.CurrentRound.RoundStateChanges += OnRoundStateChanges;
+                match.CurrentRound.StateChanges += OnRoundStateChanges;
             }
         }
 
-        private void OnRoundStateChanges(object sender, RoundState e)
+        private void OnRoundStateChanges(IMachineStateComponent<RoundState> component, RoundState e)
         {
-			if (!(sender is IRound round))
+			if (!(component is IRound round))
 				return;
 
             if (round.State == RoundState.NotStarted)

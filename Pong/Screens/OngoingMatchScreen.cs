@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,29 +30,30 @@ namespace Pong.Screens
         public ServeBallHandler ServeBallHandler { get; private set; }
         public FirstServerFinder FirstServerFinder { get; private set; }
 
+        public CollisionTester CollisionTester { get; private set; }
+
         Song music;
 
         public OngoingMatchScreen(Game game) : base(game)
         {
             Translucent = false;
 
-            Game.Components.Add(Ball = new Ball(game));
-            Game.Components.Add(AiPaddle = new Paddle(game, Team.Red));
-            Game.Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
-            Game.Components.Add(ScoreDisplay = new ScoreDisplay(game));
-            Game.Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
-            Game.Components.Add(ServeBallHandler = new ServeBallHandler(Game));
-			
-			//updateActions.Add((x) => {
-			//	if (!(x is IMatchStateSensitive sensitiveToMatchStateComp))
-			//		return;
-			//});
-		}
+            Components.Add(Ball = new Ball(game));
+            Components.Add(AiPaddle = new Paddle(game, Team.Red));
+            Components.Add(PlayerPaddle = new Paddle(game, Team.Blue));
+            Components.Add(ScoreDisplay = new ScoreDisplay(game));
+            Components.Add(FirstServerFinder = new FirstServerFinder(Game, Ball));
+            Components.Add(ServeBallHandler = new ServeBallHandler(Game));
+            Components.Add(CollisionTester = new CollisionTester(game, Ball, new List<Paddle>() { AiPaddle, PlayerPaddle }));
+        }
 
         public override void Initialize()
         {
             _match = Game.Services.GetService<IMatch>();
 			_match.StateChanges += StateChanged;
+
+            foreach (IMatchStateSensitive matchSensitive in Components.OfType<IMatchStateSensitive>())
+                _match.StateChanges += matchSensitive.StateChanged;
             
             base.Initialize();
         }
@@ -63,15 +65,27 @@ namespace Pong.Screens
 #endif
             music = Game.Content.Load<Song>("music/music");
 		}
-        
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+
+            if (_match.State == MatchState.InstanciatedRound)
+            {
+                _match.State = MatchState.FindingFirstServer;
+            }
+        }
+
         /// <summary>
-		/// MATCH EVENTS
-		/// </summary>
+        /// MATCH EVENTS
+        /// </summary>
         public void StateChanged(IMachineStateComponent<MatchState> component, MatchState previous)
         {
             if (_match.State == MatchState.InstanciatedRound)
             {
                 _match.CurrentRound.StateChanges += StateChanged;
+                foreach (IRoundStateSensitive roundSensitive in Components.OfType<IRoundStateSensitive>())
+                    _round.StateChanges += roundSensitive.StateChanged;
             }
             else if (_match.State == MatchState.FindingFirstServer)
             {

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoTycoon;
+using MonoTycoon.Graphics.Primitives;
 using MonoTycoon.Physics;
 using MonoTycoon.States;
 using Pong.Core;
@@ -14,10 +15,14 @@ namespace Pong.Entities
 {
     public class Paddle : DrawableGameComponent
     {
+        private const int KB_SPEED_PIXELS_PER_SECOND = 250;
+
         public Transform2 Transform { get; set; }
 
-        public Texture2D PaddleTexture;
+        public Texture2D PaddleTexture { get; private set; }
         public Team Team;
+
+        Texture2D debugTexture;
 
         public Paddle(Game game, Team team) : base(game)
         {
@@ -27,12 +32,12 @@ namespace Pong.Entities
 
         public override void Initialize()
         {
-            IMatch match = Game.Services.GetService<IMatch>();
-            match.StateChanges += OnMatchStateChanges;
+            //IMatch match = Game.Services.GetService<IMatch>();
+            //match.StateChanges += OnMatchStateChanges;
 
-            IRound round = match.CurrentRound;
-            if (round != null)
-                round.StateChanges += OnRoundStateChanges;
+            //IRound round = match.CurrentRound;
+            //if (round != null)
+            //    round.StateChanges += OnRoundStateChanges;
 
             Transform.Size = new Size2(50, 100);
 
@@ -91,6 +96,7 @@ namespace Pong.Entities
         {
             // TODO: Change sprite for paddle.
             PaddleTexture = Game.Content.Load<Texture2D>("textures/ship");
+            debugTexture = RectangleTexture.Create(Color.Red);
         }
 
         public override void Update(GameTime gameTime)
@@ -100,13 +106,39 @@ namespace Pong.Entities
             if (Team == Team.Red || match.State == MatchState.DemoMode)
                 MoveAI(gameTime);
             else if (Team == Team.Blue)
-                MoveWithMouse(gameTime);
+                //MoveWithMouse(gameTime);
+                MoveWithKeyboard(gameTime);
             else
                 throw new NotImplementedException();
 
             ConstrainWithinBounds(GraphicsDevice.Viewport.Bounds);
         }
 
+        private void MoveWithKeyboard(GameTime gameTime)
+        {
+            var state = Keyboard.GetState();
+            bool upPressed = state.IsKeyDown(Keys.Up);
+            bool downPressed = state.IsKeyDown(Keys.Down);
+
+            if (!(upPressed && downPressed))
+            {
+                if (upPressed)
+                {
+                    Transform.Location = new Vector2(
+                        x: Transform.Location.X,
+                        y: (float)(Transform.Location.Y - (KB_SPEED_PIXELS_PER_SECOND * gameTime.ElapsedGameTime.TotalSeconds))
+                    );
+                }
+                else if (downPressed)
+                {
+                    Transform.Location = new Vector2(
+                        x: Transform.Location.X,
+                        y: (float)(Transform.Location.Y + (KB_SPEED_PIXELS_PER_SECOND * gameTime.ElapsedGameTime.TotalSeconds))
+                    );
+                }
+            }
+        }
+            
         private void MoveWithMouse(GameTime gameTime)
         {
             Transform.Location = new Vector2(
@@ -122,7 +154,12 @@ namespace Pong.Entities
 
         public override void Draw(GameTime gameTime)
         {
-            Game.GetSpriteBatch().Draw(PaddleTexture, Transform.ToRectangle(), Color.White);
+            var paddleRectangle = this.Transform.ToRectangle();
+            Game.GetSpriteBatch().Draw(PaddleTexture, paddleRectangle, null, Color.White);
+            Game.GetSpriteBatch().Draw(debugTexture, Transform.ToRectangle().Center.ToVector2(), null, Color.White, 0f, Vector2.Zero, 5f, SpriteEffects.None, 1f);
+            var rec = Transform.ToRectangle();
+            rec.Inflate(1f, 1f);
+            Game.GetSpriteBatch().Draw(debugTexture, rec, Color.White);
         }
 
         public void ConstrainWithinBounds(Rectangle viewBounds)

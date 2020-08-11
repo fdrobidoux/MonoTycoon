@@ -8,12 +8,13 @@ using Pong.Core;
 using Pong.Mechanics;
 using System.Collections.Generic;
 using MonoTycoon.States;
+using MonoTycoon.Graphics.Primitives;
 
 namespace Pong.Entities
 {
 	public class Ball : DrawableGameComponent, IMatchStateSensitive, IRoundStateSensitive
 	{
-		private const double STARTING_VELOCITY = 300; // Pixels per second.
+		private const double STARTING_VELOCITY = 600; // Pixels per second.
 
 		public Transform2 Transform { get; set; }
 
@@ -22,9 +23,13 @@ namespace Pong.Entities
 
 		public Texture2D Sprite;
 
-		public SpriteFont DebugFont { get; private set; }
+		Texture2D debugTexture;
 
-		private const string SFX_WALLHIT_BASE = "sfx/wall_hit_{0}";
+#if DEBUG
+        public SpriteFont DebugFont { get; private set; }
+#endif
+
+        private const string SFX_WALLHIT_BASE = "sfx/wall_hit_{0}";
 		private SoundEffect[] sfxGroup_WallHit;
 
 		public Ball(Game game) : base(game)
@@ -39,8 +44,7 @@ namespace Pong.Entities
 			Transform = new Transform2(Vector2.Zero, new Size2(50, 50), 1f);
 
 			Velocity = STARTING_VELOCITY;
-			Direction = new Vector2(1, 2);
-            Direction.Normalize();
+			Direction = Vector2.Normalize(new Vector2(1, 2));
 
 			Enabled = false;
 			Visible = false;
@@ -58,6 +62,8 @@ namespace Pong.Entities
 				theSfx.Add(Game.Content.Load<SoundEffect>(string.Format(SFX_WALLHIT_BASE, i)));
 			}
 			sfxGroup_WallHit = theSfx.ToArray();
+
+			debugTexture = RectangleTexture.Create(Color.DeepPink);
 		}
 
 		public override void Update(GameTime gt)
@@ -76,20 +82,19 @@ namespace Pong.Entities
 			var str = $"Transform {Transform.ToRectangle().ToString()}";
 			var position = new Vector2(x: 0, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
 			Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Blue, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+			Game.GetSpriteBatch().Draw(debugTexture, Transform.ToRectangle(), Color.White);
 #endif
 		}
 
 		private void Bounce(GameTime gt, Rectangle bounds)
 		{
-			Vector2 minLocationF;
 			float diffX, diffY;
 
 			Transform.DeconstructScaledF(out Vector2 locationF, out Vector2 sizeF);
-			sizeF /= 2f;
 
-			minLocationF = locationF - sizeF;
+			locationF -= sizeF * 0.5f;
 
-			if ((diffX = minLocationF.X) <= 0f)
+			if ((diffX = locationF.X - bounds.Left) <= 0f)
 			{
 				Direction *= new Vector2(-1f, 1f);
 				Transform -= new Vector2(diffX, 0f);
@@ -99,7 +104,7 @@ namespace Pong.Entities
 				Direction *= new Vector2(-1f, 1f);
 				Transform += new Vector2(diffX, 0f);
 			}
-			if ((diffY = minLocationF.Y) <= 0f)
+			if ((diffY = locationF.Y - bounds.Top) <= 0f)
 			{
 				Direction *= new Vector2(1f, -1f);
 				Transform -= new Vector2(0f, diffY);
@@ -130,7 +135,7 @@ namespace Pong.Entities
 		private Rectangle centerDivide()
 		{
 			Rectangle rect = Transform.ToRectangle();
-			rect.Location -= rect.Size.DivideBy(2);
+			rect.Offset(rect.Size.DivideBy(2).Scale(-1f));
 			return rect;
 		}
 

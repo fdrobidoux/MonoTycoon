@@ -78,6 +78,7 @@ namespace Pong.Mechanics.Serve
             else if (match.State == MatchState.FindingFirstServer)
             {
                 Visible = true;
+                TheBall.Visible = true;
                 currentTeam = (new Random().Next(2) == 1) ? Team.Blue : Team.Red;
                 timerSwitcharooDo.Reset(true);
                 timerEndSwitcharoo.IntervalMs = TimeSpan.FromMilliseconds(new Random().Next(2000, 3001)).TotalMilliseconds;

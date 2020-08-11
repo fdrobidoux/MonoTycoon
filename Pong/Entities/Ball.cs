@@ -77,13 +77,13 @@ namespace Pong.Entities
 
 		public override void Draw(GameTime gameTime)
 		{
-			Game.GetSpriteBatch().Draw(Sprite, centerDivide(), Color.White);
 #if DEBUG
 			var str = $"Transform {Transform.ToRectangle().ToString()}";
 			var position = new Vector2(x: 0, y: (Game.GraphicsDevice.Viewport.Height - DebugFont.MeasureString(str).Y));
 			Game.GetSpriteBatch().DrawString(DebugFont, str, position, Color.Blue, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
 			Game.GetSpriteBatch().Draw(debugTexture, Transform.ToRectangle(), Color.White);
 #endif
+			Game.GetSpriteBatch().Draw(Sprite, Transform.ToRectangle(), Color.White);
 		}
 
 		private void Bounce(GameTime gt, Rectangle bounds)
@@ -92,7 +92,7 @@ namespace Pong.Entities
 
 			Transform.DeconstructScaledF(out Vector2 locationF, out Vector2 sizeF);
 
-			locationF -= sizeF * 0.5f;
+			//locationF -= sizeF * 0.5f;
 
 			if ((diffX = locationF.X - bounds.Left) <= 0f)
 			{

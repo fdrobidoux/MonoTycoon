@@ -95,8 +95,8 @@ namespace Pong.Entities
         protected override void LoadContent()
         {
             // TODO: Change sprite for paddle.
-            PaddleTexture = Game.Content.Load<Texture2D>("textures/ship");
             debugTexture = RectangleTexture.Create(Color.Red);
+            PaddleTexture = Game.Content.Load<Texture2D>("textures/ship");
         }
 
         public override void Update(GameTime gameTime)
